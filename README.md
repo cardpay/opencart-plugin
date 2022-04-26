@@ -95,7 +95,7 @@ To enable payments via **Unlimint Credit Card (v1.0.3)**, do the following steps
    * Set to **No** for Production environment.
 
  * **Payment title** - fill in the name of the payment method, will be presented for the customer in checkout.
-<!-- … 
+
  * **Capture payment**:
    * Set to **Yes** for completion payment automatically (one phase payment).
    * Set to **No** for two phases payment: the amount will not be captured but only blocked.
@@ -103,7 +103,7 @@ To enable payments via **Unlimint Credit Card (v1.0.3)**, do the following steps
 With **No** option selected, payments will be captured automatically in 7 days from the time of creating the preauthorized transaction.
 
 In installment case with **No** option selected installments will be declined automatically in 7 days from the time of creating the preauthorized transaction.
--->
+
  * **Installment enabled:** - this setting enables installment payments possibility.
    * Set to **Yes** - installment payments are enabled, number of installments are available for selection in payment form, it's possible to split payment to 2-12 installments, each installment in 30 days period.
    * Set to **No** - installment payments are disabled.
@@ -163,8 +163,6 @@ This process explains how to set up Order statuses for payment notifications:
 
 The notification statuses have been successfully configured.
 
-<!-- … 
-
 ## Supported post-payment operations
 
 Unlimint Opencart plugin supports the following post-payment operations:
@@ -181,14 +179,26 @@ If **Capture payment** is set to **Yes** - an order will be completed without an
 
 #### Capture of the payment
 
-For Capture of the preauthorized payment, navigate to **Order Status** tab and click **Pending** status for capture payment.
+For Capture of the preauthorized payment, navigate to **Sales** > **Orders** section and click **View** button of the required payment.
 
-The status of the order is changed to **Pending**.
+Then click **Capture payment** button, which is available only for preauthorized payments.
+
+![](readme_images/opencart_capture_cancel.png)
+
+Click **OK** in the pop-up window, which requires the approval and says **Are you sure you want to capture the payment?**
+
+After the successful processing of the operation the order status will change to **Complete** and will be displayed in the **Order history** section.
+
+![](readme_images/opencart_capture_status_change.png)
 
 #### Cancel (void) the payment
 
-For cancel (void) the payment, navigate to **Unlimint Credit Card (v1.0.3)** and choose the **Order Status** tab for cancel (void) payment, then click **Canceled**.
+For cancel (void) the payment, navigate to **Unlimint Credit Card (v1.0.3)** and choose the **Order Status** tab for *Order status when payment is voided*, then click **Cancel payment**.
 
-Order status is changed to **Canceled**.
+![](readme_images/opencart_capture_cancel.png)
 
--->
+Click **OK** in the pop-up window, which requires the approval and says **Are you sure you want to cancel the payment?**
+
+After the successful processing of the operation the order status will change to **Canceled** and will be displayed in the **Order history** section.
+
+![](readme_images/opencart_cancel_status_change.png)
