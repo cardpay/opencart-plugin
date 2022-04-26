@@ -1,0 +1,200 @@
+<link rel="stylesheet" href="catalog/view/theme/default/stylesheet/ul_checkout.css">
+
+<script type="text/javascript">
+    function async(u, c) {
+        var d = document;
+        var t = 'script';
+        var o = d.createElement(t);
+        var s = d.getElementsByTagName(t)[0];
+
+        o.src = u;
+        if (c) {
+            o.addEventListener('load', function (e) {
+                c(null, e);
+            }, false);
+        }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<div class="clearfix"></div>
+
+<div id="ul-box-form">
+    {% set form = {
+        "credit_card_number" : cucredit_card_number,
+        "expiration_date" : cuexpiration_date,
+        "year" : cuyear,
+        "month" : cumonth,
+        "card_holder_name" : cucard_holder_name,
+        "security_code" : cusecurity_code,
+        "installments" : cuinstallments,
+        "document_number" : cudocument_number,
+        "numofinstallments" : cunumofinstallments,
+        "btn_pay" : cubtn_pay
+    } %}
+
+    {% set error = {
+        "205" : cue205,
+        "E301" : cueE301,
+        "208" : cue208,
+        "209" : cue209,
+        "325" : cue325,
+        "326" : cue326,
+        "221" : cue221,
+        "316" : cue316,
+        "224" : cue224,
+        "E302" : cueE302,
+        "E203" : cueE203,
+        "212" : cue212,
+        "322" : cue322,
+        "214" : cue214,
+        "324" : cue324,
+        "E324" : cueE324,
+        "213" : cue213,
+        "323" : cue323,
+        "220" : cue220,
+    } %}
+
+    {% set coupon_error = {"EULTY" : cueEULTY} %}
+
+    {% set form_labels = {"form":form, "error":error, "coupon_error":coupon_error} %}
+    <div class="ul-box-inputs ul-line">
+        <div class="ul-box-inputs ul-col-50">
+            <div class="ul-title-checkout">{{ payment_title }}</div>
+        </div>
+    </div>
+    <form method="post" id="ul-form" name="ul-form" action="{{ actionForm }}" onsubmit="return ul_check_form(this)">
+        <div id="unlimint-form">
+            <div class="ul-box-inputs ul-col-100">
+                <label for="cardNumber">{{ form_labels.form.credit_card_number }} <em>*</em></label>
+                <input type="text" id="cardNumber" name="unlimint_custom[cardNumber]" data-checkout="cardNumber"
+                       onkeyup="ulCreditMask(this, ulMcc);"
+                       onchange="ulCheckField(this)"
+                       autocomplete="off" maxlength="23"/>
+                <span id="card-brand"></span>
+                <span class="ul-error" id="ul-error-205" data-main="#cardNumber"> {{ form_labels.error.205 }} </span>
+                <span class="ul-error" id="ul-error-E301" data-main="#cardNumber"> {{ form_labels.error.E301 }} </span>
+            </div>
+
+            <div class="ul-box-inputs ul-col-100">
+                <label for="cardholderName">{{ form_labels.form.card_holder_name }} <em>*</em></label>
+                <input type="text" id="cardholderName" name="unlimint_custom[cardholderName]"
+                       onchange="ulCheckField(this)"
+                       data-checkout="cardholderName" autocomplete="off" maxlength="50"/>
+                <span class="ul-error" id="ul-error-221"
+                      data-main="#cardholderName"> {{ form_labels.error.221 }} </span>
+                <span class="ul-error" id="ul-error-316"
+                      data-main="#cardholderName"> {{ form_labels.error.316 }} </span>
+            </div>
+            <div class="ul-col-md-6 ul-pr-15">
+                <div class="ul-box-inputs">
+                    <label for="cardExpirationDate">{{ form_labels.form.expiration_date }} <em>*</em></label>
+                    <input type="text" id="cardExpirationDate" name="unlimint_custom[cardExpirationDate]"
+                           onchange="ulCheckField(this)"
+                           onkeyup="ulProcessValue(this, ulExpDate);"
+                           data-checkout="cardExpirationDate" autocomplete="off" maxlength="5"/>
+                </div>
+                <span class="ul-error ul-mt-5" id="ul-error-208"
+                      data-main="#cardExpirationDate"> {{ form_labels.error.208 }} </span>
+                <span class="ul-error ul-mt-5" id="ul-error-209"
+                      data-main="#cardExpirationDate"> {{ form_labels.error.209 }} </span>
+
+            </div>
+
+            <div class="ul-col-md-6">
+                <div class="ul-box-inputs">
+                    <label for="securityCode">{{ form_labels.form.security_code }} <em>*</em></label>
+                    <input type="password" id="securityCode" name="unlimint_custom[securityCode]"
+                           data-checkout="securityCode"
+                           onchange="ulCheckField(this)"
+                           onkeyup="ulCreditMask(this, ulInteger);"
+                           autocomplete="off" maxlength="4"/>
+                </div>
+                <span class="ul-error ul-mt-5" id="ul-error-224"
+                      data-main="#securityCode"> {{ form_labels.error.224 }} </span>
+                <span class="ul-error ul-mt-5" id="ul-error-E302"
+                      data-main="#securityCode"> {{ form_labels.error.E302 }} </span>
+            </div>
+        </div>
+
+        {% if(ask_cpf) %}
+            <div class="ul-box-inputs ul-line">
+                <div class="ul-box-inputs ul-col-45">
+                    <label for="docnumber">{{ form_labels.form.document_number }} <em>*</em></label>
+                    <input type="text" id="docnumber" name="unlimint_custom[docnumber]"
+                           data-checkout="docNumber"
+                           onchange="ulCheckField(this)"
+                           onkeyup="ulCpfMask(this, ulDocNumber);"
+                           autocomplete="off" maxlength="14"/>
+                    <span class="ul-error" id="ul-error-324"
+                          data-main="#docNumber"
+                          data-main="#cpf"> {{ form_labels.error.324 }} </span>
+                    <span class="ul-error" id="ul-error-E324"
+                          data-main="#docNumber"
+                          data-main="#cpf"> {{ form_labels.error.E324 }} </span>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if installment_enabled %}
+            <div id="ul-box-installments">
+                <div class="ul-box-inputs ul-col-100" id="ul-box-installments-selector">
+                    <label for="ul-installments">{{ form_labels.form.installments }} <em>*</em></label>
+                    <select id="ul-installments" data-checkout="installments" name="unlimint_custom[installments]"
+                            onchange="ulCheckField(this)">
+                        <option value="">{{ cunumofinstallments }}</option>
+                        {% for key in installments %}
+                            <option value="{{ key.installments }}">{{ key.amount }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="ul-error" id="ul-error-220"
+                          data-main="#installments"> {{ form_labels.error.220 }} </span>
+                </div>
+
+                <div class="ul-box-inputs ul-col-30" id="ul-box-input-tax-cft">
+                    <div id="ul-tax-cft-text"></div>
+                </div>
+
+                <div class="ul-box-inputs ul-col-100" id="ul-box-input-tax-tea">
+                    <div id="ul-tax-tea-text"></div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="ul-box-inputs ul-line">
+            <div class="ul-box-inputs ul-col-50">
+                <img alt="{{ action }}" src="admin/view/image/payment/{{ action }}/credit_card.png"/>
+            </div>
+        </div>
+
+        <div class="ul-box-inputs ul-line">
+            <div class="ul-box-inputs ul-col-50">
+                <input type="submit" id="btnSubmit" name="btnSubmit" value={{ form_labels.form.btn_pay }}>
+            </div>
+
+            <div class="ul-box-inputs ul-col-25">
+                <div id="ul-box-loading">
+                </div>
+            </div>
+        </div>
+
+        <div class="ul-box-inputs ul-col-100" id="unlimint-utilities">
+            <input type="text" id="site_id" name="unlimint_custom[site_id]"/>
+            <input type="text" id="amount" value="{{ amount }}" name="unlimint_custom[amount]"/>
+            <input type="hidden" id="campaign_id" name="unlimint_custom[campaign_id]"/>
+            <input type="hidden" id="campaign" name="unlimint_custom[campaign]"/>
+            <input type="hidden" id="discount" name="unlimint_custom[discount]"/>
+            <input type="hidden" id="max_installments" value="{{ max_installments }}"
+                   name="unlimint_custom[max_installments]"/>
+            <input type="text" id="paymentMethodId" name="unlimint_custom[paymentMethodId]"/>
+            <input type="text" id="token" name="unlimint_custom[token]"/>
+            <input type="text" id="cardTruncated" name="unlimint_custom[cardTruncated]"/>
+            <input type="text" id="CustomerAndCard" name="unlimint_custom[CustomerAndCard]"/>
+        </div>
+    </form>
+    <input type="hidden" id="numofinstallments" value="{{ form_labels.form.numofinstallments }}"/>
+
+    {{ '<script defer src="./catalog/view/javascript/ul/cpMask.js"></script>' }}
+    {{ '<script defer src="./catalog/view/javascript/ul/card/ul_card_view.js"></script>' }}
+    {{ '<script defer src="./catalog/view/javascript/ul/ticket/ul_lib_ticket.js"></script>' }}
+</div>

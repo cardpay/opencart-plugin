@@ -1,0 +1,17 @@
+<div class="form-group">
+    {% for method in methods %}
+    {% if (method['id'] != 'account_money') %}
+        {% if ul_ticket_methods is not null and method.id in ul_ticket_methods %}
+
+            <div style="{{ payment_style }}" id="{{ method.name }}">
+                <img src="{{ method.secure_thumbnail }}"><br/>
+                <input name="payment_ul_ticket_methods[]" type="checkbox" checked="checked" value="{{ method.id }}" style="margin-left:25%;">
+            </div>
+        {% else %}
+            <div style="{{ payment_style }}" id="{{ method.name }}">
+                <img src="{{ method.secure_thumbnail }}"><br/>
+                <input name="payment_ul_ticket_methods[]" type="checkbox" value="{{ method.id }}" style="margin-left:25%;">
+            </div>
+        {% endif %}
+    {% endif %}
+{% endfor %}
