@@ -1,15 +1,22 @@
 <?php
 
-require_once "lib/unlimint.php";
-require_once "lib/ul_util.php";
-require_once "ul_ticket.php";
-require_once "ul_card.php";
+require_once __DIR__ . "/lib/unlimint.php";
+require_once __DIR__ . "/lib/ul_util.php";
+require_once __DIR__ . "/lib/ul_cart.php";
+require_once __DIR__ . "/lib/unlimint_order_info.php";
+require_once __DIR__ . "/ul_alt_gateway.php";
+require_once __DIR__ . "/ul_card.php";
+require_once __DIR__ . "/ul_ticket.php";
+require_once __DIR__ . "/ul_pix.php";
 
 /**
  * @property Request $request
- * @property UL $ul
+ * @property Unlimint $ul
  * @property Config $config
  * @property Response $response
+ * @property Session $session
+ * @property DB $db
+ * @property Cart\Cart $cart
  */
 class ControllerExtensionPaymentULGeneral extends Controller
 {
@@ -18,14 +25,17 @@ class ControllerExtensionPaymentULGeneral extends Controller
     public const CHECKOUT_SUCCESS = 'checkout/success';
     public const UL_PREFIX = '';
 
+    public $get_prefix;
     private $ul_util;
     private $ul;
     protected $orderId;
-    protected UL $instance_ul;
+    protected Unlimint $instance_ul;
     protected $model_order;
     protected $orderInfo;
     protected $data;
     protected $statusId;
+    protected $amount;
+    protected $ul_cart;
 
     public function __construct($registry)
     {
@@ -38,6 +48,14 @@ class ControllerExtensionPaymentULGeneral extends Controller
         $this->model_order = $this->model_checkout_order;
         $this->orderInfo = $this->model_checkout_order->getOrder($this->orderId);
         $this->statusId = 1;
+        $this->amount = ($this->orderInfo) ?
+            round($this->orderInfo['total'] * $this->orderInfo['currency_value'], 2) : 0;
+
+        $this->ul_cart = (new ULCart())
+            ->setDb($this->db)
+            ->setCart($this->cart)
+            ->setCustomer($this->customer)
+            ->setSession($this->session);
     }
 
     public function get_instance_ul_util()
@@ -54,7 +72,7 @@ class ControllerExtensionPaymentULGeneral extends Controller
 
     public function get_instance_ul()
     {
-        return $this->ul ?? $this->ul = UL::getInstance(static::UL_PREFIX, $this->config)
+        return $this->ul ?? $this->ul = Unlimint::getInstance(static::UL_PREFIX, $this->config)
                 ->setLog($this->log)
                 ->setDb($this->db);
     }
@@ -69,13 +87,18 @@ class ControllerExtensionPaymentULGeneral extends Controller
         }
 
         $message = $this->language->get($status);
+
         echo json_encode(['message' => $message]);
     }
 
-    //CallBack IPN : eg: https://<domain>/index.php?route=extension/payment/ul_general/callback
+    /**
+     * CallBack IPN : eg: https://<domain>/index.php?route=extension/payment/ul_general/callback
+     * @throws JsonException
+     */
     public function callback()
     {
         $this->get_instance_ul_util();
+
         $action = '';
         if (isset($this->request->get['action'])) {
             $action = $this->request->get['action'];
@@ -84,10 +107,12 @@ class ControllerExtensionPaymentULGeneral extends Controller
         switch ($action) {
             case 'success' :
             case 'inproccess' :
+                $this->ul_cart->clearCurrentBackup();
                 $this->response->redirect($this->url->link(self::CHECKOUT_SUCCESS));
                 break;
             case 'decline' :
             case 'cancel' :
+                $this->ul_cart->restoreOrderedProducts();
                 $this->response->redirect($this->url->link(self::CHECKOUT_CHECKOUT));
                 break;
             case '' :
@@ -105,9 +130,9 @@ class ControllerExtensionPaymentULGeneral extends Controller
         $headers = getallheaders();
         $callback_signature = $headers['signature'] ?? '';
         $generated_signature = hash('sha512', $callback . $callback_secret);
+
         return ($generated_signature === $callback_signature);
     }
-
 
     protected function parse_notification_body(): bool
     {
@@ -117,9 +142,7 @@ class ControllerExtensionPaymentULGeneral extends Controller
         if (!empty($input)) {
             $request_data = json_decode($input, true);
 
-            if (isset($request_data['callback_time']) &&
-                (isset($request_data['payment_data']) || isset($request_data['recurring_data']))) {
-
+            if (isset($request_data['callback_time']) && isset($request_data['payment_data'])) {
                 //it calls successful_request
                 $err = !$this->successfulRequest($request_data);
                 if ($err) {
@@ -127,9 +150,11 @@ class ControllerExtensionPaymentULGeneral extends Controller
                 }
             }
         }
+
         if ($err) {
             $this->ul_util->writeLog(__FUNCTION__ . ' - Wrong params in Request IPN.');
         }
+
         return $err;
     }
 
@@ -152,23 +177,18 @@ class ControllerExtensionPaymentULGeneral extends Controller
             if (!empty(static::UL_PREFIX)) {
                 $result = static::UL_PREFIX;
             }
+
             return $result;
         }
+
         if (empty($result)) {
             $this->load->model(self::CHECKOUT_ORDER);
             $dbOrderInfo = $this->model_checkout_order->getOrder($orderID);
-            $dbCode = $dbOrderInfo['payment_code'];
-            switch ($dbCode) {
-                case 'ul_card':
-                    $result = 'card';
-                    break;
-                case 'ul_ticket':
-                    $result = 'ticket';
-                    break;
-                default:
-                    $result = '';
-            }
+
+            $this->get_prefix = new UnlimintOrderInfo();
+            $result = $this->get_prefix->getPrefix($dbOrderInfo['payment_code']);
         }
+
         return $result;
     }
 
@@ -186,6 +206,7 @@ class ControllerExtensionPaymentULGeneral extends Controller
             $this->log->write(__FUNCTION__ . ' Invalid signature ' . json_encode($this->request->request));
             return false;
         }
+
         $this->log->write(__FUNCTION__ . ' - updating metadata and status with data: ' . json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
         if ($prefix) {
@@ -194,6 +215,7 @@ class ControllerExtensionPaymentULGeneral extends Controller
         }
 
         $this->log->write(__FUNCTION__ . ' - External Reference not found');
+
         return (false);
     }
 
@@ -221,12 +243,38 @@ class ControllerExtensionPaymentULGeneral extends Controller
 
     public function getZip($orderInfo)
     {
+        $result = '';
         if (!empty($orderInfo['shipping_postcode'])) {
-            return $orderInfo['shipping_postcode'];
+            $result = $orderInfo['shipping_postcode'];
         } elseif (!empty($orderInfo['payment_postcode'])) {
-            return $orderInfo['payment_postcode'];
+            $result = $orderInfo['payment_postcode'];
         }
 
-        return '';
+        return $result;
+    }
+
+    public function createUrl($data)
+    {
+        $url = $this->get_instance_ul_util()->processPayment(
+            $data,
+            $this->orderInfo,
+            $this->statusId,
+            $this->model_order,
+            $this->instance_ul
+        );
+
+        if ($url !== false) {
+            $this->ul_cart->clearOrderedProducts();
+            $this->ul_cart->clearOldCartBackups();
+            $this->response->redirect($url);
+        } else {
+            $this->session->data['error'] = $this->get_instance_ul_util()->error;
+            $this->response->redirect($this->url->link(self::CHECKOUT_CHECKOUT, '', true));
+        }
+    }
+
+    public function exceptionCatch($e)
+    {
+        echo json_encode(array("status" => $e->getCode(), "message" => $e->getMessage()), JSON_THROW_ON_ERROR);
     }
 }

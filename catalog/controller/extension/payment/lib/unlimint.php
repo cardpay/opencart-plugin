@@ -5,7 +5,7 @@ $GLOBALS["LIB_LOCATION"] = __DIR__;
 require_once __DIR__ . '/ul_rest_client.php';
 require_once __DIR__ . '/unlimint_exception.php';
 
-class UL
+class Unlimint
 {
     public const VERSION = "3.0";
     private $client_id;
@@ -36,7 +36,7 @@ class UL
         }
 
         $type = isset($payment_info['response']['payment_data']) ? 'payment_data' : 'recurring_data';
-        $recurring = ($type === 'recurring_data') ? (int) $form_data['recurring_data']["payments"] : 0;
+        $recurring = ($type === 'recurring_data') ? (int)$form_data['recurring_data']["payments"] : 0;
         $payment_id = $payment_info['response'][$type]['id'];
         $total = $order_info['total'];
 
@@ -50,12 +50,24 @@ class UL
         $this->db->query($query);
     }
 
+    public function completeOrderData($order_id, $new_amount, $new_payment_id)
+    {
+        $this->db->query('UPDATE ' . DB_PREFIX . 'ul_orders 
+        SET 
+        initial_amount=' . $new_amount . ',
+        transaction_id=' . $new_payment_id . ',
+        is_complete=1
+        WHERE 
+        is_complete=0 AND order_id=' . $order_id);
+    }
+
     public function getOrderInfo($order_id)
     {
         $sql = 'SELECT * FROM ' . DB_PREFIX . 'ul_orders WHERE order_id = ' . $order_id . ' limit 1';
 
         $query = $this->db->query($sql);
-        return(!empty($query->row) && !empty($query->row['transaction_id'])) ? $query->row : [];
+
+        return (!empty($query->row) && !empty($query->row['transaction_id'])) ? $query->row : [];
     }
 
     /**
@@ -80,12 +92,14 @@ class UL
     public function setLog($log)
     {
         $this->log = $log;
+
         return $this;
     }
 
     public function setDb($db)
     {
         $this->db = $db;
+
         return $this;
     }
 
@@ -101,6 +115,7 @@ class UL
         if (!is_null($enable)) {
             $this->sandbox = $enable === true;
         }
+
         return $this->sandbox;
     }
 
@@ -115,13 +130,14 @@ class UL
      * Get Terminal Password for API use
      * @throws UnlimintException
      */
-    public function get_access_token()
+    public function getAccessToken()
     {
         $app_client_values = [
             'terminal_code' => $this->client_id,
             'password' => $this->client_secret,
             'grant_type' => 'password',
         ];
+
         $access_data = ULRestClient::post($this->api_url, [
             "uri" => "/auth/token",
             "data" => $app_client_values,
@@ -136,31 +152,10 @@ class UL
 
             throw new UnlimintException(print_r($access_data['response'], true), $access_data['status']);
         }
+
         $access_data_response = $access_data['response'];
+
         return $access_data_response['access_token'];
-    }
-
-    /**
-     * @throws UnlimintException
-     */
-    public function getUserInfo($id)
-    {
-        $request = [
-            "uri" => "/users/" . $id . "?access_token=" . $this->get_access_token(),
-        ];
-        $response = ULRestClient::get($this->api_url, $request);
-
-        return $response['response'];
-    }
-
-    public function getPaymentMethods($country_id)
-    {
-        $request = [
-            "uri" => "/sites/" . $country_id . "/payment_methods",
-        ];
-        $response = ULRestClient::get($this->api_url, $request);
-
-        return $response['response'];
     }
 
     /**
@@ -169,12 +164,12 @@ class UL
      * @return array(json)
      * @throws UnlimintException
      */
-    public function get_authorized_payment($id)
+    public function getAuthorizedPayment($id)
     {
         $request = [
             "uri" => "/authorized_payments/{$id}",
             "params" => [
-                "access_token" => $this->get_access_token(),
+                "access_token" => $this->getAccessToken(),
             ],
         ];
 
@@ -189,16 +184,10 @@ class UL
      */
     public function create_payment($payment)
     {
-        $get_access_token = $this->get_access_token();
-
-        if (isset($payment['recurring_data'])) {
-            $uri = "/installments";
-        } else {
-            $uri = "/payments";
-        }
+        $get_access_token = $this->getAccessToken();
 
         $request = [
-            "uri" => $uri,
+            "uri" => "/payments",
             "params" => [
                 "access_token" => $get_access_token,
             ],
@@ -228,15 +217,12 @@ class UL
      */
     public function getPayment($payment_id)
     {
-        $get_access_token = $this->get_access_token();
+        $get_access_token = $this->getAccessToken();
 
         $request = [
             "uri" => "/payments/" . $payment_id,
             "params" => [
                 "access_token" => $get_access_token,
-            ],
-            "headers" => [
-                "x-tracking-id" => "platform:v1-whitelabel,type:OpenCart3",
             ]
         ];
 
@@ -264,7 +250,7 @@ class UL
 
         $request["params"] = isset($request["params"]) && is_array($request["params"]) ? $request["params"] : [];
         if (isset($authenticate) && $authenticate) {
-            $request["params"]["access_token"] = $this->get_access_token();
+            $request["params"]["access_token"] = $this->getAccessToken();
         }
 
         return ULRestClient::get($this->api_url, $request);
@@ -315,9 +301,10 @@ class UL
                 "params" => $params,
             );
         }
+
         $request["params"] = isset($request["params"]) && is_array($request["params"]) ? $request["params"] : [];
         if (!isset($request["authenticate"]) || $request["authenticate"] !== false) {
-            $request["params"]["access_token"] = $this->get_access_token();
+            $request["params"]["access_token"] = $this->getAccessToken();
         }
 
         return ULRestClient::delete($this->api_url, $request);
@@ -339,10 +326,12 @@ class UL
                 "params" => $params,
             ];
         }
+
         $request["params"] = isset($request["params"]) && is_array($request["params"]) ? $request["params"] : [];
         if (!isset($request["authenticate"]) || $request["authenticate"] !== false) {
-            $request["params"]["access_token"] = $this->get_access_token();
+            $request["params"]["access_token"] = $this->getAccessToken();
         }
+
         return $request;
     }
 }

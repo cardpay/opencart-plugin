@@ -1,0 +1,295 @@
+{{ header }}{{ column_left }}
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="pull-right">
+                <a id="btn_save" class="btn btn-primary">{{ button_save }}<i class="fa fa-save"></i></a>
+                <a onclick="location = '{{ cancel }}';" class="btn btn-default">{{ button_cancel }}<i
+                            class="fa fa-reply"></i></a>
+            </div>
+            <h1>{{ heading_title }}</h1>
+            <ul class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="container-fluid">
+        {% if error_warning %}
+            <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+        {% endif %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-pencil"></i>Edit Unlimint</h3>
+            </div>
+            <div class="panel-body">
+                <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form_ul"
+                      class="form-horizontal">
+                    <ul class="nav nav-tabs" id="tabs">
+                        <li class="active"><a href="#tab_settings" data-toggle="tab">{{ tab_setting }}</a></li>
+                        <li><a href="#tab_order_status" data-toggle="tab">{{ tab_order_status }}</a></li>
+                    </ul>
+                    <div class="tab-content" id="form-table">
+                        <div class="tab-pane active" id="tab_settings">
+                            <div class="form-group required" id="div_payment_ul_pix_status">
+                                <label class="col-sm-2 control-label" for="payment_ul_pix_status"><span
+                                            data-toggle="tooltip"
+                                            title='{{ help_status }}'>{{ entry_payment_status }}</span></label>
+                                <div class="col-sm-10">
+                                    <select name="payment_ul_pix_status"
+                                            id="payment_ul_pix_status"
+                                            class="form-control">
+                                        {% if payment_ul_pix_status %}
+                                            <option value="1" selected="selected">{{ text_yes }}</option>
+                                            <option value="0">{{ text_no }}</option>
+                                        {% else %}
+                                            <option value="1">{{ text_yes }}</option>
+                                            <option value="0" selected="selected">{{ text_no }}</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group required" id="div_payment_ul_pix_terminal_code">
+                                <label class="col-sm-2 control-label"
+                                       for="payment_ul_pix_terminal_code">{{ entry_terminal_code }}</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="payment_ul_pix_terminal_code"
+                                           name="payment_ul_pix_terminal_code"
+                                           value="{{ payment_ul_pix_terminal_code }}"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group required" id="div_payment_ul_pix_terminal_password">
+                                <label class="col-sm-2 control-label" for="input-settlement-immediate">
+							<span data-toggle="tooltip"
+                                  title='{{ help_terminal_password }}'>{{ entry_terminal_password }}</span></label>
+                                <div class="col-sm-10">
+                                    <input type="password" class="form-control" id="payment_ul_pix_terminal_password"
+                                           name="payment_ul_pix_terminal_password"
+                                           value="{{ payment_ul_pix_terminal_password }}"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group required" id="div_payment_ul_pix_callback_secret">
+                                <label class="col-sm-2 control-label"
+                                       for="payment_ul_pix_callback_secret">{{ entry_callback_secret }}</label>
+                                <div class="col-sm-10">
+                                    <input type="password" class="form-control" id="payment_ul_pix_callback_secret"
+                                           name="payment_ul_pix_callback_secret"
+                                           value="{{ payment_ul_pix_callback_secret }}"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group required" id="div_payment_ul_pix_test_environment">
+                                <label class="col-sm-2 control-label" for="input-settlement-immediate">
+							<span data-toggle="tooltip"
+                                  title='{{ help_test_environment }}'>{{ entry_test_environment }}</span></label>
+                                <div class="col-sm-10">
+                                    <select name="payment_ul_pix_test_environment"
+                                            id="payment_ul_pix_test_environment" class="form-control">
+                                        {% if payment_ul_pix_test_environment %}
+                                            <option value="1" selected="selected">{{ text_no }}</option>
+                                            <option value="0">{{ text_yes }}</option>
+                                        {% else %}
+                                            <option value="1">{{ text_no }}</option>
+                                            <option value="0" selected="selected">{{ text_yes }}</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group required" id="div_payment_ul_pix_payment_title">
+                                <label class="col-sm-2 control-label"
+                                       for="payment_ul_pix_payment_title">{{ entry_payment_title }}</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="payment_ul_pix_payment_title"
+                                           name="payment_ul_pix_payment_title"
+                                           value="{{ payment_ul_pix_payment_title }}"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group required" id="div_payment_ul_pix_log_to_file">
+                                <label class="col-sm-2 control-label"
+                                       for="payment_ul_pix_log_to_file">{{ entry_log_to_file }}</label>
+                                <div class="col-sm-10">
+                                    <select name="payment_ul_pix_log_to_file" id="payment_ul_pix_log_to_file"
+                                            class="form-control">
+                                        {% if payment_ul_pix_log_to_file %}
+                                            <option value="1" selected="selected">{{ text_no }}</option>
+                                            <option value="0">{{ text_yes }}</option>
+                                        {% else %}
+                                            <option value="1">{{ text_no }}</option>
+                                            <option value="0" selected="selected">{{ text_yes }}</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane" id="tab_order_status">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label"
+                                       for="payment_ul_pix_new_status">{{ entry_new_payment_status }}</label>
+                                <div class="col-sm-9">
+                                    <select name="payment_ul_pix_new_status"
+                                            id="payment_ul_pix_new_status"
+                                            class="form-control">
+                                        {% for status in order_statuses %}
+                                            {% if payment_ul_pix_new_status == status.order_status_id %}
+                                                <option value="{{ status.order_status_id }}"
+                                                        selected="selected">{{ status.name }}</option>
+                                            {% else %}
+                                                <option value="{{ status.order_status_id }}">{{ status.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label"
+                                       for="payment_ul_pix_processing">{{ entry_payment_processing }}</label>
+                                <div class="col-sm-9">
+                                    <select name="payment_ul_pix_processing"
+                                            id="payment_ul_pix_processing"
+                                            class="form-control">
+                                        {% for status in order_statuses %}
+                                            {% if payment_ul_pix_processing == status.order_status_id %}
+                                                <option value="{{ status.order_status_id }}"
+                                                        selected="selected">{{ status.name }}</option>
+                                            {% else %}
+                                                <option value="{{ status.order_status_id }}">{{ status.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label"
+                                       for="payment_ul_pix_declined">{{ entry_payment_declined }}</label>
+                                <div class="col-sm-9">
+                                    <select name="payment_ul_pix_declined"
+                                            id="payment_ul_pix_declined"
+                                            class="form-control">
+                                        {% for status in order_statuses %}
+                                            {% if payment_ul_pix_declined == status.order_status_id %}
+                                                <option value="{{ status.order_status_id }}"
+                                                        selected="selected">{{ status.name }}</option>
+                                            {% else %}
+                                                <option value="{{ status.order_status_id }}">{{ status.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label"
+                                       for="payment_ul_pix_authorized">{{ entry_payment_authorized }}</label>
+                                <div class="col-sm-9">
+                                    <select name="payment_ul_pix_authorized"
+                                            id="payment_ul_pix_authorized"
+                                            class="form-control">
+                                        {% for status in order_statuses %}
+                                            {% if payment_ul_pix_authorized == status.order_status_id %}
+                                                <option value="{{ status.order_status_id }}"
+                                                        selected="selected">{{ status.name }}</option>
+                                            {% else %}
+                                                <option value="{{ status.order_status_id }}">{{ status.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label"
+                                       for="payment_ul_pix_completed">{{ entry_payment_completed }}</label>
+                                <div class="col-sm-9">
+                                    <select name="payment_ul_pix_completed"
+                                            id="payment_ul_pix_completed"
+                                            class="form-control">
+                                        {% for status in order_statuses %}
+                                            {% if payment_ul_pix_completed == status.order_status_id %}
+                                                <option value="{{ status.order_status_id }}"
+                                                        selected="selected">{{ status.name }}</option>
+                                            {% else %}
+                                                <option value="{{ status.order_status_id }}">{{ status.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label"
+                                       for="payment_ul_pix_cancelled">{{ entry_payment_cancelled }}</label>
+                                <div class="col-sm-9">
+                                    <select name="payment_ul_pix_cancelled"
+                                            id="payment_ul_pix_cancelled"
+                                            class="form-control">
+                                        {% for status in order_statuses %}
+                                            {% if payment_ul_pix_cancelled == status.order_status_id %}
+                                                <option value="{{ status.order_status_id }}"
+                                                        selected="selected">{{ status.name }}</option>
+                                            {% else %}
+                                                <option value="{{ status.order_status_id }}">{{ status.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label"
+                                       for="payment_ul_pix_charged_back">{{ entry_payment_charged_back }}</label>
+                                <div class="col-sm-9">
+                                    <select name="payment_ul_pix_charged_back"
+                                            id="payment_ul_pix_charged_back"
+                                            class="form-control">
+                                        {% for status in order_statuses %}
+                                            {% if payment_ul_pix_charged_back == status.order_status_id %}
+                                                <option value="{{ status.order_status_id }}"
+                                                        selected="selected">{{ status.name }}</option>
+                                            {% else %}
+                                                <option value="{{ status.order_status_id }}">{{ status.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label"
+                                       for="payment_ul_pix_chargeback_resolved">{{ entry_payment_chargeback_resolved }}</label>
+                                <div class="col-sm-9">
+                                    <select name="payment_ul_pix_chargeback_resolved"
+                                            id="payment_ul_pix_chargeback_resolved"
+                                            class="form-control">
+                                        {% for status in order_statuses %}
+                                            {% if payment_ul_pix_chargeback_resolved == status.order_status_id %}
+                                                <option value="{{ status.order_status_id }}"
+                                                        selected="selected">{{ status.name }}</option>
+                                            {% else %}
+                                                <option value="{{ status.order_status_id }}">{{ status.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="./view/javascript/ul/common_settings_ul.js"></script>
+<script defer type="text/javascript" src="./view/javascript/ul/pix/ul_settings_pix.js"></script>
+<script type="text/javascript" src="./view/javascript/ul/spinner.min.js"></script>

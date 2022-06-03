@@ -1,15 +1,19 @@
 <?php
 
+require_once __DIR__ . '/unlimint_order_info.php';
+
 class ULOpencartUtil
 {
     public const TRANSACTION_ID_PREFIX = '- Payment ID:';
 
-    private $platformVersion = "3.0";
-    private $moduleVersion = "1.0.3";
-    private $log;
-    private $config;
+    private const DATE_FORMAT = 'd/m/Y h:i';
+
+    private string $platformVersion = "3.0";
+    private string $moduleVersion = "1.0.3";
+    private Log $log;
+    private Config $config;
     /**
-     * @var UL $ul
+     * @var Unlimint $ul
      */
     private $ul;
 
@@ -28,6 +32,17 @@ class ULOpencartUtil
         "terminated" => 10,
         "refunded" => 11
     ];
+
+    private const FAILED_STATUSES = [
+        "CANCELLED",
+        "REJECTED",
+        "DECLINED",
+        "TERMINATED"
+    ];
+
+    protected UnlimintOrderInfo $get_prefix;
+
+    public string $error = '';
 
     public function setLog($log)
     {
@@ -58,6 +73,7 @@ class ULOpencartUtil
         if (!isset($this->ul_order_status_id[$status])) {
             return $this->ul_order_status_id['pending'];
         }
+
         $status_id = $this->config->get('payment_ul_' . $prefix . '_' . $status);
 
         if (!empty($status_id)) {
@@ -69,7 +85,7 @@ class ULOpencartUtil
 
     public function createAnalytics($resultModules, $token, $customerEmail, $userLogged)
     {
-        return array(
+        return [
             'publicKey' => "",
             'token' => $token,
             'platform' => "Opencart",
@@ -79,42 +95,147 @@ class ULOpencartUtil
             'userLogged' => $userLogged,
             'installedModules' => implode(', ', $resultModules),
             'additionalInfo' => ""
-        );
+        ];
     }
 
-    public function updateOrder($payment, $model, $db, $prefix)
+    protected function saveRefund($order_id, $payment, $model)
     {
+        $order = $model->getOrder($order_id);
+        if (empty($order) || $payment['refund_data']['status'] !== 'COMPLETED') {
+            return false;
+        }
+
+        $refund = sprintf(
+            'Amount: %s %s, ID: %s',
+            $payment['refund_data']['amount'],
+            $payment['refund_data']['currency'],
+            $payment['refund_data']['id']
+        );
+
+        $model->addOrderHistory($order_id, $order['order_status_id'], date(self::DATE_FORMAT) . ' - Refund: ' . $refund);
+
+        return true;
+    }
+
+    /**
+     * @param string $type
+     * @param array $payment
+     * @param DB $db
+     */
+    public function completeOrderData($type, $payment, $db)
+    {
+        $order_id = (int)$payment['merchant_order']['id'];
+        $res = $db->query('SELECT * FROM ' . DB_PREFIX . 'ul_orders 
+                    WHERE order_id=' . ($order_id) . ' 
+                    LIMIT 1');
+        $order_info = $res->row ?? [];
+        $received_transaction_id = $payment[$type]['id'];
+        $received_amount = $payment[$type]['amount'];
+
+        if (
+            empty($order_info) ||
+            $order_info['is_complete'] ||
+            (
+                $received_transaction_id == $order_info['transaction_id'] &&
+                $received_amount == $order_info['initial_amount'])
+        ) {
+            return;
+        }
+        $this->ul->completeOrderData($order_id, $received_amount, $received_transaction_id);
+    }
+
+    public function isFinalRefund($payment)
+    {
+        return isset($payment['payment_data']['remaining_amount']) && ($payment['payment_data']['remaining_amount'] == 0);
+    }
+
+    /**
+     * @param string $result_order_status
+     * @param string $transaction_id
+     * @param ?array $order_info
+     * @return bool
+     */
+    protected function isDoubledPaymentFailed($result_order_status, $transaction_id, $order_info)
+    {
+        return
+            in_array($result_order_status, self::FAILED_STATUSES) &&
+            !empty($transaction_id) &&
+            !empty($order_info) &&
+            isset($order_info['transaction_id']) &&
+            $order_info['transaction_id'] !== $transaction_id;
+    }
+
+    protected function processRefundData($order_id, $prefix, $callback_data, $model)
+    {
+        if ($this->isFinalRefund($callback_data)) {
+            $status_id = $this->getStatusId('REFUNDED', $prefix);
+            $model->addOrderHistory($order_id, $status_id, 'Order refunded');
+        }
+        $this->saveRefund($order_id, $callback_data, $model);
+        return true;
+    }
+
+    /**
+     * @param array $callback_data
+     * @param ModelCheckoutOrder $model
+     * @param DB $db
+     * @param string $prefix
+     * @return bool
+     */
+    public function updateOrder($callback_data, $model, $db, $prefix): bool
+    {
+        $this->ul->writeLog('Callback: ' . json_encode($callback_data));
+        $order_id = $callback_data['merchant_order']['id'] ?? 0;
+        $order = ($order_id) ? $model->getOrder($order_id) : [];
+        $type = 'payment_data';
+        $result_order_status = $callback_data[$type]['status'] ?? '';
+        if (!$order_id || empty($order)) {
+            return false;
+        }
+
+        if (isset($callback_data['refund_data'])) {
+            return $this->processRefundData($order_id, $prefix, $callback_data, $model);
+        }
+
+        if (in_array($result_order_status, ['COMPLETED', 'AUTHORIZED'])) {
+            $this->completeOrderData($type, $callback_data, $db);
+        }
+
+        $result = true;
+
         try {
-            $type = isset($payment['payment_data']) ? 'payment_data' : 'recurring_data';
+            $status_id = $this->getStatusId($result_order_status, $prefix);
+            $order_info = $this->ul->getOrderInfo($order_id);
 
-            $order_id = $payment['merchant_order']['id'] ?? 0;
-            $result_order_status = $payment[$type]['status'] ?? '';
-
-            $actualize = true;
-
-            if (empty($result_order_status)) {
-                $actualize = false;
-                $db = null;
+            if ($this->isDoubledPaymentFailed(
+                $result_order_status,
+                $callback_data[$type]['id'] ?? '',
+                $order_info)
+            ) {
+                $status_id = $order['order_status_id'];
             }
 
-            if (isset($db) && $db != null) {
-                $status_id = $this->getStatusId($result_order_status, $prefix);
-                $sql = "SELECT max(order_history_id) as order_history FROM " . DB_PREFIX . "order_history WHERE order_id = " . $order_id . " and order_status_id = " . $status_id;
+            $query = $db->query('SELECT max(order_history_id) AS order_history 
+            FROM ' . DB_PREFIX . 'order_history 
+            WHERE order_id = ' . $order_id . ' 
+            AND order_status_id = ' . $status_id);
 
-                $query = $db->query($sql);
-
-                if (isset($query->rows) && $query->rows[0]['order_history'] != null) {
-                    $actualize = true;
-                }
-            }
-
-            if ($actualize) {
-                $model->addOrderHistory($order_id, $status_id, date('d/m/Y h:i') . ' - Callback Status: ' . $result_order_status);
+            if (!isset($query->rows) || empty($query->rows[0]['order_history']) || 'CHARGEBACK_RESOLVED' === $result_order_status) {
+                $model->addOrderHistory(
+                    $order_id,
+                    $status_id,
+                    sprintf('%s - Status: %s - ID: %s',
+                        date(self::DATE_FORMAT), $result_order_status, $callback_data[$type]['id'] ?? ''
+                    )
+                );
             }
         } catch (Exception $e) {
             $this->writeLog(__FUNCTION__ . ' - ' . print_r($e, true));
             error_log("error for updateOrder - " . $e);
+            $result = false;
         }
+
+        return $result;
     }
 
     public function updateOrderPayment($order_info, $model, $statusId, $payment_id)
@@ -123,7 +244,7 @@ class ULOpencartUtil
             $model->addOrderHistory(
                 $order_info['order_id'],
                 $statusId,
-                date('d/m/Y h:i') . ' '
+                date(self::DATE_FORMAT) . ' '
                 . self::TRANSACTION_ID_PREFIX
                 . $payment_id
             );
@@ -139,21 +260,15 @@ class ULOpencartUtil
 
     public function createApiRequest($orderId, $order_info, $capture = true)
     {
-        switch ($order_info['payment_code']) {
-            case 'ul_card':
-                $prefix = 'card';
-                break;
-            case 'ul_ticket':
-                $prefix = 'ticket';
-                break;
-            default:
-                $prefix = '';
-        }
+        $this->get_prefix = new UnlimintOrderInfo();
+        $prefix = $this->get_prefix->getPrefix($order_info['payment_code']);
+
         $id = uniqid('', true);
         $customerId = uniqid('', true);
 
         $total_price = round($order_info['total'] * $order_info['currency_value'], 2);
         $notification_url = $order_info['store_url'] . 'index.php?route=extension/payment/ul_' . $prefix . '/callback';
+
         $data = [
             'request' => [
                 'id' => $id,
@@ -183,15 +298,16 @@ class ULOpencartUtil
         $shipping_address = [
             'country' => 'BR',
             'state' => $order_info['payment_zone'],
-            'zip' => $order_info['shipping_postcode'],
             'city' => $order_info['payment_city'],
             'phone' => $order_info['telephone'],
             'addr_line_1' => $order_info['payment_address_1'],
             'addr_line_2' => $order_info['payment_address_2'],
         ];
 
-        if (empty($shipping_address['zip'])) {
-            $shipping_address['zip'] = $order_info['post_code'] ?? '';
+        if (!empty($order_info['post_code'])) {
+            $shipping_address['zip'] = $order_info['post_code'];
+        } else {
+            $shipping_address['zip'] = $order_info['shipping_postcode'];
         }
 
         if (!empty($order_info['shipping_code'])) {
@@ -207,23 +323,22 @@ class ULOpencartUtil
         return $data;
     }
 
-    public function processPayment($data, $order_info, $statusId, $model_order, $instance_ul)
+    public function processPayment($data, $order_info, $status_id, $model_order, $instance_ul)
     {
-        $ret = $instance_ul->create_payment($data);
+        $result = $instance_ul->create_payment($data);
 
-        if (($ret["status"] === 200 || $ret["status"] === 201) && isset($ret['response'])) {
-            $type = isset($ret['response']['payment_data']) ? 'payment_data' : 'recurring_data';
+        if (isset($result["status"], $result['response']) && in_array((int)$result["status"], [200, 201], true)) {
+            $redirectUrl = $result['response']['redirect_url'];
+            $paymentId = $result['response']['payment_data']['id'];
 
-            $redirectUrl = $ret['response']['redirect_url'];
-            $paymentId = $ret['response'][$type]['id'];
+            $this->updateOrderPayment($order_info, $model_order, $status_id, $paymentId);
+            $this->ul->setOrderData($order_info, $result, $data);
 
-            $this->updateOrderPayment($order_info, $model_order, $statusId, $paymentId);
-            $this->ul->setOrderData($order_info, $ret, $data);
-
-
-            return ($redirectUrl);
+            return $redirectUrl;
+        } elseif (isset($result['response']['message'])) {
+            $this->error = $result['response']['message'];
         }
 
-        return (false);
+        return false;
     }
 }

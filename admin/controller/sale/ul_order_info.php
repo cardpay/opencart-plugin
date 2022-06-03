@@ -1,44 +1,43 @@
 <?php
 
+require_once __DIR__ . "/../../../catalog/controller/extension/payment/lib/ul_refunds.php";
+
 class ControllerSaleUlOrderInfo extends Controller
 {
-    public function edit()
-    {
-        $this->language->load('extension/payment/ul_card');
-        return $this->info('');
-    }
+    public const OC_PROCESSING_STATUS_ID = 2;
 
-    public function info($style = 'line-height:12px; height: 31px; ')
+    protected function renderButtons($style, $refund)
     {
         $order_id = (int)$this->request->get['order_id'];
         $order_info = $this->model_sale_order->getOrder($order_id);
-        if (
-            ($order_info['payment_code'] != 'ul_card') ||
-            ($order_info['order_status_id'] != 2) ||
-            ($this->config->get('payment_ul_card_capture_payment') == '1')
-        ) {
+
+        if ($order_info['payment_code'] !== 'ul_card') {
             return;
         }
+        $ul_refund = (new ULRefunds())->setConfig($this->config)->setDb($this->db);
 
+        $data = [
+            'order_id' => $order_id,
+            'user_token' => $this->session->data['user_token'],
+            'buttons' => [],
+            'labels' => [
+                'ul_button_capture' => $this->language->get('ul_button_capture'),
+                'ul_button_cancel' => $this->language->get('ul_button_cancel'),
+                'ul_button_refund' => $this->language->get('ul_button_refund'),
+            ]
+        ];
+        if (
+            ($order_info['order_status_id'] == self::OC_PROCESSING_STATUS_ID) &&
+            ($this->config->get('payment_ul_card_capture_payment') != '1')
+        ) {
+            $data['buttons']['capture'] = true;
+            $data['buttons']['cancel'] = true;
+        }
+        if ($refund && $ul_refund->canRefund($order_info)) {
+            $data['buttons']['refund'] = true;
+        }
 
-        $capture_button_label = $this->language->get('ul_button_capture');
-        $cancel_button_label = $this->language->get('ul_button_cancel');
-
-        echo "<script type='text/javascript'>
-            window.onload = function() {
-                jQuery(`
-                    <button type='button' id='ul_button_cancel' class='btn btn-error pull-right' style='" . $style . "margin-left: 4px;' onclick='ulCancelPayment()'>$cancel_button_label</button>
-                    <button type='button' id='ul_button_capture' class='btn pull-right ' style='" . $style . "margin-left: 4px;' onclick='ulCapturePayment()'>$capture_button_label</button>
-                `).insertBefore('div.page-header');
-            }
-        </script>";
-        $this->echo_bankcard_translations();
-    }
-
-
-    private function echo_bankcard_translations()
-    {
-        $bankcard_translations = [
+        $data['dialogs'] = [
             'ARE_YOU_SURE' => $this->language->get('ul_q01'),
             'THE_PAYMENT' => $this->language->get('ul_q02'),
             'PAYMENT_WAS_NOT' => $this->language->get('ul_q03'),
@@ -46,29 +45,30 @@ class ControllerSaleUlOrderInfo extends Controller
             'SUCCESSFULLY' => $this->language->get('ul_q05'),
             'CANCEL' => $this->language->get('ul_q06'),
             'CAPTURE' => $this->language->get('ul_q07'),
+            'REFUND' => $this->language->get('ul_q10'),
+            'REFUNDED' => $this->language->get('ul_q11'),
             'CANCELLED' => $this->language->get('ul_q08'),
             'CAPTURED' => $this->language->get('ul_q09'),
             'USER_TOKEN' => $_REQUEST['user_token'],
-            'ORDER_ID' => $_REQUEST['order_id'],
+            'ORDER_ID' => $_REQUEST['order_id']
         ];
+        $t = $this->load->view('extension/payment/ul_buttons', $data);
+        echo $t;
+    }
 
-        $bankcard_alert_translations = '{';
-        foreach ($bankcard_translations as $key => $value) {
-            $bankcard_alert_translations .= "\"$key\":\"$value\"";
-            if (array_key_last($bankcard_translations) != $key) {
-                $bankcard_alert_translations .= ',';
-            }
-        }
-        $bankcard_alert_translations .= '}';
+    public function edit()
+    {
+        $this->language->load('extension/payment/ul_card');
+        $this->refund();
+    }
 
-        echo "
-            <script type='text/javascript' src='./view/javascript/ul/card/bankcard_settings_unlimin.js'></script>
+    public function refund()
+    {
+        $this->renderButtons('', true);
+    }
 
-			<script type='text/javascript'>
-			if (typeof BANKCARD_ALERT_TRANSLATIONS === 'undefined') {
-                var BANKCARD_ALERT_TRANSLATIONS = $bankcard_alert_translations;
-            }
-			</script>
-		";
+    public function info($style = 'line-height:12px; height: 31px; ')
+    {
+        $this->renderButtons($style, false);
     }
 }

@@ -1,14 +1,32 @@
 <?php
 
-require_once '../admin/controller/extension/payment/ul_card.php';
-require_once '../admin/controller/extension/payment/ul_ticket.php';
-require_once '../admin/model/extension/payment/ul_payment_migrations.php';
+require_once __DIR__ . '/../../../../admin/controller/extension/payment/ul_card.php';
+require_once __DIR__ . '/../../../../admin/controller/extension/payment/ul_ticket.php';
+require_once __DIR__ . '/../../../../admin/model/extension/payment/ul_payment_migrations.php';
 
 class ControllerExtensionPaymentUl extends Controller
 {
     public const COMMON_EXTENSION = 'extension/payment/ul_payment_migrations';
 
-    public function load_common_header($extension_payment_ul, $user_token)
+    protected const POST_FIELDS = [
+        'status',
+        'terminal_code',
+        'terminal_password',
+        'callback_secret',
+        'test_environment',
+        'payment_title',
+        'log_to_file',
+        'new_status',
+        'processing',
+        'authorized',
+        'cancelled',
+        'declined',
+        'charged_back',
+        'completed',
+        'chargeback_resolved',
+    ];
+
+    public function loadCommonHeader($extension_payment_ul, $user_token)
     {
         $this->load->model('setting/setting');
 
@@ -38,8 +56,10 @@ class ControllerExtensionPaymentUl extends Controller
         $data['cancel'] = $this->url->link('extension/extension', $token_session, true);
     }
 
-    public function get_data($posts, $prefix)
+    public function getData($posts, $prefix)
     {
+        $posts = array_merge(self::POST_FIELDS, $posts);
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($posts as $field) {
                 $fieldname = $prefix . $field;
@@ -55,22 +75,21 @@ class ControllerExtensionPaymentUl extends Controller
             }
         }
 
-        return $data;
+        return $data ?? [];
     }
 
     /**
      * @param array $posts_fields
-     * @param string $prefix
      * @return array
      */
-    public function load_common_footer(array $posts_fields)
+    public function loadCommonFooter(array $posts_fields)
     {
         $data['button_save'] = $this->language->get('button_save');
         $data['button_cancel'] = $this->language->get('button_cancel');
 
         $data['error_warning'] = $this->_error['warning'] ?? '';
 
-        $data = $this->get_data($posts_fields, static::CODE);
+        $data = $this->getData($posts_fields, static::CODE);
 
         $this->model_setting_setting->editSetting(static::CODE, $data);
 

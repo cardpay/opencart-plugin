@@ -1,9 +1,9 @@
 <?php
 
-require_once "lib/unlimint.php";
-require_once "lib/ul_util.php";
-require_once "lib/ul_checker.php";
-require_once "ul_general.php";
+require_once __DIR__ . "/lib/unlimint.php";
+require_once __DIR__ . "/lib/ul_util.php";
+require_once __DIR__ . "/lib/ul_checker.php";
+require_once __DIR__ . "/ul_general.php";
 
 class ControllerExtensionPaymentULCard extends ControllerExtensionPaymentULGeneral
 {
@@ -22,7 +22,7 @@ class ControllerExtensionPaymentULCard extends ControllerExtensionPaymentULGener
         $data['terms'] = '';
         $data['public_key'] = $this->config->get('payment_ul_card_public_key');
         $data['site_id'] = $this->config->get('payment_ul_card_country');
-        $data['max_installments'] = 12;
+        $data['max_installments'] = self::INSTALLMENTS_MAX;
         $data['payment_title'] = $this->config->get('payment_ul_card_payment_title');
         $data['ask_cpf'] = $this->config->get('payment_ul_card_ask_cpf');
         $data['installment_enabled'] = $this->config->get('payment_ul_card_installment_enabled');
@@ -44,14 +44,13 @@ class ControllerExtensionPaymentULCard extends ControllerExtensionPaymentULGener
         $this->language->load('extension/payment/ul_card');
 
         //populate labels
-        $labels = array(
+        $labels = [
             'cucredit_card_number', 'cucard_holder_name', 'cuexpiration_date',
             'cusecurity_code', 'cuinstallments', 'cudocument_number', "cunumofinstallments",
-            'cuyour_card', 'cuother_cards', 'cuother_card', 'cuended_in',
-            'cubtn_pay', 'cue205', 'cueE301', 'cue208', 'cue209', 'cue325',
+            'cuended_in', 'cubtn_pay', 'cue205', 'cueE301', 'cue208', 'cue209', 'cue325',
             'cue326', 'cue221', 'cue316', 'cue224', 'cueE302', 'cueE203', 'cue212',
             'cue322', 'cue214', 'cue324', 'cueE324', 'cue213', 'cue323', 'cue220', 'cueEULTY'
-        );
+        ];
 
         foreach ($labels as $label) {
             $data[$label] = $this->language->get($label);
@@ -60,7 +59,7 @@ class ControllerExtensionPaymentULCard extends ControllerExtensionPaymentULGener
         $data['server'] = $_SERVER;
         $data['debug'] = $this->config->get('payment_ul_card_debug');
         $data['user_logged'] = $this->customer->isLogged();
-        $view = floatval(VERSION) < 2.2 ? 'default/template/payment/' : 'extension/payment/';
+        $view = (float)VERSION < 2.2 ? 'default/template/payment/' : 'extension/payment/';
 
         $view_uri = $view . 'ul_card';
 
@@ -102,56 +101,44 @@ class ControllerExtensionPaymentULCard extends ControllerExtensionPaymentULGener
             $checker = new ULFormChecker($this->language);
             $errors = $checker->check($params_unlimint);
             if (!empty($errors)) {
-                $this->session->data['error'] = join('<br>', $errors);
+                $this->session->data['error'] = implode('<br>', $errors);
                 $this->response->redirect($this->url->link(self::CHECKOUT_CHECKOUT, '', true));
             }
 
-            $payment_method = 'BANKCARD';
             $capture = ($this->config->get('payment_ul_card_capture_payment') === '1');
 
             $data = $this->get_instance_ul_util()->createApiRequest($this->orderId, $this->orderInfo, $capture);
 
-            $data['payment_method'] = $payment_method;
-
+            $params_unlimint = $_REQUEST['unlimint_custom'];
             $installments = isset($params_unlimint['installments']) ? (int)$params_unlimint['installments'] : 0;
-            if ($installments > 1) {
-                $data['recurring_data'] = array(
-                    'installment_type' => 'MF_HOLD',
-                    'initiator' => 'cit',
-                    'interval' => '30',
-                    'period' => 'day',
-                    'currency' => $this->orderInfo['currency_code'],
-                    'amount' => round($this->orderInfo['total'] * $this->orderInfo['currency_value'], 2),
-                    'payments' => $installments,
-                    'generate_token' => 'true'
-                );
-                if (!$capture) {
-                    $data['recurring_data']['preauth'] = true;
-                }
-                unset($data['payment_data']);
-            }
-            $exp = explode('/', $params_unlimint['cardExpirationDate']);
+            $data['payment_data'] += [
+                'installment_type' => 'MF_HOLD',
+                'installments' => $installments,
+                'dynamic_descriptor' => $this->config->get('payment_ul_card_dynamic_descriptor'),
+            ];
+
+            $data['payment_method'] = 'BANKCARD';
+
+            $exp = str_split(preg_replace('#[\D]+#', '', $params_unlimint['cardExpirationDate']), 2);
             $expiration_date = $exp[0] . '/20' . $exp[1];
-            $data['card_account'] = array(
-                'card' => array(
+
+            $data['card_account'] = [
+                'card' => [
                     'pan' => $params_unlimint['cardNumber'],
                     'holder' => $params_unlimint['cardholderName'],
                     'expiration' => $expiration_date,
                     'security_code' => $params_unlimint['securityCode']
-                )
-            );
+                ]
+            ];
+
             $docNumber = $params_unlimint['docnumber'] ?? '';
             if (!empty($docNumber)) {
                 $data['customer']['identity'] = $docNumber;
             }
-            $url = $this->get_instance_ul_util()->processPayment($data, $this->orderInfo, $this->statusId, $this->model_order, $this->instance_ul);
-            if ($url !== false) {
-                $this->response->redirect($url);
-            } else {
-                $this->response->redirect($this->url->link(self::CHECKOUT_CHECKOUT, '', true));
-            }
+
+            $this->createUrl($data);
         } catch (Exception $e) {
-            echo json_encode(array("status" => $e->getCode(), "message" => $e->getMessage()));
+            $this->exceptionCatch($e);
         }
     }
 

@@ -4,7 +4,7 @@
 <input type="hidden" id="contryType" value="{{ countryType }}"/>
 
 <div id="spinner">
-    <form method="post" onsubmit="return validateUlCpf('docnumber', 'boleto-cpf-error')" id="ul-form" name="ul-form"
+    <form method="post" onsubmit="return validateUlCpf('docnumber', 'cpf-error')" id="ul-form" name="ul-form"
           action="{{ actionForm }}">
         <div class="panel-body" id="checkout-payment">
             <div id="form-ticket">
@@ -18,15 +18,15 @@
                                 <br>
                                 <br>
                                 <input type='text'
-                                       onkeyup="formatUlBoletoCpf(this.id);" onfocusout="validateUlBoletoInput();"
+                                       onkeyup="formatUlBoletoCpf(this.id);" onfocusout="validateUlInput();"
                                        class='ul-form-control'
                                        id='docnumber' data-checkout="docNumber" name='unlimint_custom[docnumber]'
                                        autocomplete='off' maxlength='14'
                                        placeholder='XXX.XXX.XXX-XX'><br/>
                                 <span class='ul-error' data-main='#ul-cpf-ticket'
-                                      id='boleto-cpf-error'>CPF IS INVALID</span>
+                                      id='cpf-error'>{{ error_invalid_cpf }}</span>
                                 <span class='ul-error' data-main='#ul-cpf-ticket'
-                                      id='boleto-cpf-error-1'>PLEASE FILL OUT A CPF</span><br/>
+                                      id='cpf-error-1'>{{ error_empty_cpf }}</span><br/>
                             </div>
                         </div>
                     </div>
@@ -36,16 +36,16 @@
                         <div class="form-row">
                             <div class="form-row">
                                 <div class="form-col-6">
-                                    <label class="ul-label-form title-cpf" for="input-payment-postcode">Post
-                                        Code <em>*</em></label>
+                                    <label class="ul-label-form title-cpf"
+                                           for="input-payment-postcode">{{ labels.label_post_code }} <em>*</em></label>
                                     <br>
                                     <input type="text" name="postcode" data-checkout="postcode" value=""
-                                           placeholder="Post Code" minlength="2" maxlength="10"
+                                           placeholder="{{ labels.label_post_code }}" minlength="2" maxlength="10"
                                            id="input_payment_postcode" class="ul-form-control"
-                                           onfocusout="validatePostCodeInput();">
+                                           onfocusout="validatePostCodeInput('boleto');">
                                     <br>
                                     <span class='ul-error' data-main='#ul-post-code'
-                                          id='boleto-post-code'>Postcode must be between 2 and 10 characters!</span><br/>
+                                          id='post-code'>{{ errors.error_invalid_post_code }}</span><br/>
                                 </div>
                             </div>
                         </div>
@@ -59,7 +59,8 @@
                     <div class="form-row">
                         <div class="form-col-12">
                             <input type="hidden" id="payment_method_id"/>
-                            <input type="submit" id="btnSubmit" name="btnSubmit" value="{{ payment_button }}"/>
+                            <input type="submit" class="btn" id="btnSubmit" name="btnSubmit"
+                                   value="{{ labels.payment_button }}"/>
                         </div>
                     </div>
                 </div>
@@ -70,60 +71,12 @@
     {{ '<script defer src="./catalog/view/javascript/ul/mask.js"></script>' }}
     {{ '<script defer src="./catalog/view/javascript/ul/ticket/ul_ticket_checkout.js"></script>' }}
     {{ '<script defer src="./catalog/view/javascript/ul/ticket/ul_lib_ticket.js"></script>' }}
+    {{ '<script defer src="./catalog/view/javascript/ul/ul_checkout.js"></script>' }}
+    {{ '<script defer src="./catalog/view/javascript/ul/pix/ul_pix_checkout.js"></script>' }}
 
 </div>
 <script type='text/javascript'>
-    function validateUlBoletoInput() {
+    function validateUlInput() {
         setTimeout(validateUlBoletoCpf(), 1);
     }
-
-    function validatePostCodeInput() {
-        const y = document.getElementById('input_payment_postcode');
-        if (y) {
-            const x = document.getElementById('input_payment_postcode').value;
-            const cpfField = jQuery('#input_payment_postcode');
-            cpfField.removeClass('ul-form-control-error');
-
-            const cpfError = jQuery('#boleto-post-code');
-            cpfError.hide();
-
-            if (x === '' || x.length < 2 || x.length > 10) {
-                cpfField.addClass('ul-form-control-error');
-                cpfError.focus();
-                cpfError.show();
-                return false;
-            }
-
-            return true;
-        }
-    }
-</script>
-<script type="text/javascript">
-    function clickRadioType(id) {
-        if (id === "fisica") {
-            $('#fisica').attr('checked', true);
-            $('#juridica').attr('checked', false);
-            $("#formJuridica").hide();
-            $("#formFisica").show();
-        } else {
-            $('#fisica').attr('checked', false);
-            $('#juridica').attr('checked', true);
-            $("#formJuridica").show();
-            $("#formFisica").hide();
-        }
-    }
-
-    function init() {
-        $("#formULB").show();
-        //$("#div_payment_methods").show();
-        clickRadioType('fisica');
-        $("#ul-cpf-ticket").mask("999.999.999-99");
-        $("#docNumberCNPJ").mask("99.999.999/9999-99");
-    }
-
-    $(document).ready(function () {
-        init();
-    });
-
-    init();
 </script>

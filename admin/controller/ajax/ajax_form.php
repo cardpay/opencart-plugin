@@ -1,63 +1,107 @@
 <?php
 
 require_once __DIR__ . "/../../../catalog/controller/extension/payment/lib/ul_util.php";
+require_once __DIR__ . "/../../../catalog/controller/extension/payment/lib/ul_refunds.php";
 require_once __DIR__ . "/../../../catalog/controller/extension/payment/lib/unlimint.php";
+require_once __DIR__ . "/../../../catalog/controller/extension/payment/lib/unlimint_order_info.php";
+require_once __DIR__ . "/../../controller/extension/payment/lib/ul_refunds_form.php";
 
 class ControllerAjaxAjaxForm extends Controller
 {
     public const CAPTURE_PAYMENT_ACTION = 'capture';
     public const CANCEL_PAYMENT_ACTION = 'cancel';
+    public const REFUND_PAYMENT_ACTION = 'refund';
     public const COMPLETE_STATUS_TO = 'COMPLETE';
     public const REVERSE_STATUS_TO = 'REVERSE';
+    public const PAYMENT_DATA = 'payment_data';
 
-    /**
-     * @var UL $ul
-     */
-    protected $ul;
+    protected Unlimint $ul;
 
-    protected function get_instance_ul($order_data)
+    protected ULRefunds $refund;
+
+    protected UnlimintOrderInfo $get_prefix;
+
+    protected function getInstanceRefund(): ULRefunds
     {
-        switch ($order_data['payment_code']) {
-            case 'ul_card':
-                $prefix = 'card';
-                break;
-            case 'ul_ticket':
-                $prefix = 'ticket';
-                break;
-            default:
-                $prefix = '';
-        }
-        return $this->ul ?? $this->ul = UL::getInstance($prefix, $this->config)
+        return $this->refund ?? $this->refund = (new ULRefunds())
+                ->setDb($this->db)
+                ->setConfig($this->config)
+                ->setUl($this->ul);
+    }
+
+    protected function getInstanceUnlimint($order_data): Unlimint
+    {
+        $this->get_prefix = new UnlimintOrderInfo();
+        $prefix = $this->get_prefix->getPrefix($order_data['payment_code']);
+
+        return $this->ul ?? $this->ul = Unlimint::getInstance($prefix, $this->config)
+                ->setLog($this->log)
                 ->setDb($this->db);
     }
 
     public function ajaxResponse($result, $message = '')
     {
-        header('Content-type: application/json', true);
-        return json_encode(
-            [
-                "success" => $result,
-                "data" => [
-                    "error_message" => $message,
-                ]
+        if (empty($this->response)) {
+            $this->response = new Response();
+        }
+
+        $this->response->addHeader('Content-type: application/json');
+        $this->response->setOutput(json_encode([
+            "success" => $result,
+            "data" => [
+                "error_message" => $message,
             ]
-        );
+        ], JSON_THROW_ON_ERROR));
+        $this->response->output();
+
+        return $result;
     }
 
-    public function ajax_button()
+    public function ajaxRefundForm(): void
     {
-        echo $this->do_payment_action($_POST['action']);
+        $this->load->model('sale/order');
+
+        $order_id = (int)$this->request->get['order_id'];
+
+        $model = $this->model_sale_order;
+        $order = $model->getOrder($order_id);
+
+        if (empty($order)) {
+            return;
+        }
+
+        $ul_refunds_form = (new UlRefundsForm())
+            ->setLanguage($this->language)
+            ->setCurrency($this->currency)
+            ->setModelSaleOrder($model)
+            ->setInstanceUnlimint($this->getInstanceUnlimint($order))
+            ->setInstanceRefund($this->getInstanceRefund())
+            ->setOrder($order)
+            ->setLoader($this->load);
+
+        $this->response->setOutput($ul_refunds_form->drawRefundForm());
     }
 
-    public function do_payment_action($payment_action)
+    public function ajaxButton()
     {
+        return $this->doPaymentAction($_POST['action']);
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function doPaymentAction($payment_action)
+    {
+        $this->load->model('sale/order');
+        $this->language->load('extension/payment/ul_card');
+
         $order_id = (int)$_POST['order_id'];
-        $order = $this->db->query("SELECT * FROM " . DB_PREFIX . "order WHERE " . DB_PREFIX . "order.order_id = '" . $order_id . "' limit 1");
-        if (empty($order->row) || empty($order->row['order_id'])) {
+        $data = $_POST['data'] ?? [];
+        $order = $this->model_sale_order->getOrder($order_id);
+        if (empty($order)) {
             return $this->ajaxResponse(false, 'Order not found');
         }
-        $order = $order->row;
-        $this->get_instance_ul($order);
+        $this->getInstanceUnlimint($order);
 
         $order_info = $this->ul->getorderInfo($order_id);
 
@@ -68,74 +112,131 @@ class ControllerAjaxAjaxForm extends Controller
             case self::CANCEL_PAYMENT_ACTION:
                 $result = $this->cancel_payment($order_info);
                 break;
+            case self::REFUND_PAYMENT_ACTION:
+                $result = $this->refund_payment($order, $order_info, $data);
+                break;
             default:
                 $result = $this->ajaxResponse(false, 'Invalid request');
                 break;
         }
+
         return $result;
     }
 
-    public function get_api_structure($order_info)
+    public function refund_payment($order, $order_info, $data)
     {
-        return (isset($order_info['payment_recurring']) && $order_info['payment_recurring'] > 0) ? 'recurring_data' : 'payment_data';
+        $this->getInstanceRefund();
+
+        $order_total = $order_info['initial_amount'];
+        $refunds = $this->refund->getTotalOrderRefunds($order['order_id']);
+
+        $requested_amount = $data['refund'];
+        if (($requested_amount <= 0) || ($requested_amount > $order_total - $refunds)) {
+            return $this->ajaxResponse(false, $this->language->get('invalid_refund_amount'));
+        }
+
+        $api_request = $this->getApiRequestForRefund($order_info, $order, $requested_amount, $data['reason'] ?? '');
+        $response = ULRestClient::post($this->ul->getApiUrl(), $api_request);
+
+        if ($this->is_response_successful($response)) {
+            $this->refund->logRefundedItems($order['order_id'], $data);
+            $this->refund->saveRefund($order['order_id'], $response['response']);
+        }
+
+        return $this->parse_response_code($response);
     }
 
     public function capture_payment($order, $order_info)
     {
-        $api_structure = $this->get_api_structure($order_info);
         $order_total = $order['total'];
 
         if ($order_total <= 0) {
-            return $this->ajaxResponse(false, 'Order total amount must be more than 0 to capture the payment');
+            return $this->ajaxResponse(false, $this->language->get('ajax_form_e1'));
         }
 
         $initial_order_amount = $order_info['initial_amount'];
         if ($order_total > (float)$initial_order_amount) {
-            return $this->ajaxResponse(false, 'Order total amount must not exceed the blocked amount to capture the payment');
+            return $this->ajaxResponse(false, $this->language->get('ajax_form_e2'));
         }
 
-        $api_request = $this->get_api_request_for_update($order_info, $api_structure, self::COMPLETE_STATUS_TO, $order_total);
+        $api_request = $this->getApiRequestForUpdate($order_info, self::PAYMENT_DATA, self::COMPLETE_STATUS_TO, $order_total);
         $response = ULRestClient::patch($this->ul->getApiUrl(), $api_request);
+
         return $this->parse_response_code($response);
     }
 
     public function cancel_payment($order_info)
     {
-        $api_structure = $this->get_api_structure($order_info);
-        $api_request = $this->get_api_request_for_update($order_info, $api_structure, self::REVERSE_STATUS_TO, 0);
+        $api_request = $this->getApiRequestForUpdate($order_info, self::PAYMENT_DATA, self::REVERSE_STATUS_TO, 0);
         $response = ULRestClient::patch($this->ul->getApiUrl(), $api_request);
+
         return $this->parse_response_code($response);
+    }
+
+    protected function is_response_successful($response): bool
+    {
+        return (isset($response['status']) && in_array($response['status'], [200, 201]));
     }
 
     public function parse_response_code($response)
     {
-        $success = (isset($response['status']) && $response['status'] == 200);
-        $message = isset($response['response']['message']) ? $response['response']['message'] : '';
+        $success = $this->is_response_successful($response);
+        $message = $response['response']['message'] ?? '';
+        $this->ul->writeLog(json_encode($response));
+
         return ($success) ? $this->ajaxResponse(true) : $this->ajaxResponse(false, $message);
     }
 
-    private function get_api_request_for_update($order_info, $api_structure, $status_to, $amount)
+    protected function getApiRequestForRefund($order_info, $order, $amount, $reason)
+    {
+        $get_access_token = $this->ul->getAccessToken();
+
+        return [
+            "uri" => '/refunds/',
+            "params" => [
+                "access_token" => $get_access_token,
+            ],
+            'data' => [
+                'request' => [
+                    'id' => uniqid('', true),
+                    'time' => date("Y-m-d\TH:i:s\Z")
+                ],
+                'merchant_order' => [
+                    'description' => (!empty($reason)) ? $reason : "Refund for order #" . $order_info['order_id'],
+                    'id' => $order_info['order_id']
+                ],
+                self::PAYMENT_DATA => [
+                    'id' => $order_info['transaction_id']
+                ],
+                'refund_data' => [
+                    'amount' => $amount,
+                    'currency' => $order['currency_code']
+                ]
+
+            ],
+        ];
+    }
+
+    protected function getApiRequestForUpdate($order_info, $api_structure, $status_to, $amount)
     {
         $transaction_id = $order_info['transaction_id'];
-        $is_recurring = $order_info['payment_recurring'] > 0;
 
-        $get_access_token = $this->ul->get_access_token();
+        $get_access_token = $this->ul->getAccessToken();
 
         $data = [
             'status_to' => $status_to
         ];
-        if (
-            (self::COMPLETE_STATUS_TO === $status_to) && ($order_info['initial_amount'] > $amount)) {
+
+        if ((self::COMPLETE_STATUS_TO === $status_to) && ($order_info['initial_amount'] > $amount)) {
             $data['amount'] = $amount;
         }
-        $uri = ($is_recurring) ? '/installments/' : '/payments/';
+
+        $uri = "/payments/" . $transaction_id;
+
         return [
-            "uri" => $uri . $transaction_id,
+            "uri" => $uri,
             "params" => [
                 "access_token" => $get_access_token,
-            ],
-            "headers" => [
-                "x-tracking-id" => "platform:v1-whitelabel,type:OpenCart3",
             ],
             'data' => [
                 'request' => [
@@ -145,7 +246,6 @@ class ControllerAjaxAjaxForm extends Controller
                 'operation' => 'CHANGE_STATUS',
                 $api_structure => $data
             ],
-
         ];
     }
 }

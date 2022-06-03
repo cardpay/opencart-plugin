@@ -1,0 +1,62 @@
+<?php
+
+$_['text_payment'] = 'Pago';
+$_['text_success'] = '¡Éxito, se han realizado los cambios!';
+$_['text_argentina'] = 'Argentina';
+$_['text_brasil'] = 'Brasil';
+$_['text_colombia'] = 'Colombia';
+$_['text_chile'] = 'Chile';
+$_['tab_setting'] = 'Ajustes';
+$_['tab_order_status'] = 'Estado del pedido';
+$_['entry_installments'] = 'Cuotas máximas aceptadas';
+$_['entry_status'] = 'Estado:';
+$_['entry_production'] = 'Modo de producción:';
+$_['entry_country'] = 'País de ventas:';
+$_['entry_type_checkout'] = 'Type Checkout: ';
+$_['entry_category'] = 'Categoría:';
+$_['entry_order_status'] = 'Estado de pedido predeterminado: ';
+$_['entry_order_status_general'] = 'Seleccione los estados que se mostrarán cuando el pedido sea: ';
+$_['entry_order_status_completed'] = 'Concluido:';
+$_['entry_order_status_pending'] = 'Pendiente:';
+$_['entry_order_status_canceled'] = 'Cancelado:';
+$_['entry_order_status_in_process'] = 'En proceso:';
+$_['entry_order_status_rejected'] = 'Rechazado:';
+$_['entry_order_status_refunded'] = 'Devuelto:';
+$_['entry_order_status_in_mediation'] = 'Mediación:';
+$_['entry_order_status_chargeback'] = 'Contracargo';
+$_['entry_terminal_code'] = 'Código de Terminal:';
+$_['entry_terminal_password'] = 'Contraseña de terminal:';
+$_['entry_test_environment'] = 'Entorno de prueba:';
+$_['entry_callback_secret'] = 'Clave secreta para devolución de Callback:';
+$_['entry_payment_title'] = 'Nombre del tipo de pago:';
+$_['entry_log_to_file'] = 'Introduce el archivo:';
+$_['entry_new_payment_status'] = 'Estado del pedido para nuevo pago:';
+$_['entry_payment_processing'] = 'Estado del pedido cuando el pago está en curso:';
+$_['entry_payment_declined'] = 'Estado del pedido cuando se rechaza el estado del pago:';
+$_['entry_payment_authorized'] = 'Estado del pedido cuando se autoriza el estado del pago:';
+$_['entry_payment_completed'] = 'Estado del pedido cuando el estado del pago está completo:';
+$_['entry_payment_cancelled'] = 'Estado del pedido cuando se cancela el estado del pago:';
+$_['entry_payment_charged_back'] = 'Estado del pedido cuando se invierte el estado del pago:';
+$_['entry_payment_chargeback_resolved'] = 'Estado del pedido cuando se resuelve el estado del contracargo:';
+$_['entry_payment_refunded'] = 'Estado del pedido cuando se reembolsa el estado del pago:';
+$_['entry_payment_voided'] = 'Estado del pedido cuando se anula el estado del pago:';
+$_['entry_payment_terminated'] = 'Estado del pedido cuando el estado del pago está cerrado:';
+$_['entry_payment_status'] = 'Poder';
+$_['error_permission'] = 'Lo sentimos, no tienes permiso para modificar Unlimitt';
+$_['error_client_id'] = 'Lo sentimos, su identificación de cliente es obligatoria';
+$_['error_client_secret'] = 'Lo sentimos, el secreto del cliente es obligatorio';
+$_['error_sponsor_span'] = 'ID de patrocinador no válido. Este campo no es obligatorio, si no conoce a su patrocinador, borre este campo!';
+$_['help_terminal_password'] = 'Obtenga sus credenciales, visite unlimint.com';
+$_['help_test_environment'] = 'En el entorno de prueba, los datos solo se envían a la zona de pruebas. Las credenciales de prueba y producción (código de terminal, contraseña de terminal, secreto de devolución de llamada) son diferentes.';
+$_['help_status'] = 'Es un requisito que tenga un certificado SSL y el formulario de pago se proporcione en una página HTTPS.';
+
+// Entry
+$_['entry_notification_url'] = 'Su URL de notificación es: ';
+$_['entry_autoreturn'] = 'Retorno Automático';
+$_['entry_client_id'] = 'Identificación del cliente: ';
+$_['entry_client_secret'] = 'Secreto del cliente: ';
+$_['entry_sandbox'] = 'Modo sandbox:';
+$_['entry_access_token'] = 'Contraseña de terminal:';
+// Error
+$_['error_public_key'] = 'Lo sentimos, se requiere el código de terminal.';
+$_['error_access_token'] = 'Lo sentimos, se requiere la contraseña de la terminal.';

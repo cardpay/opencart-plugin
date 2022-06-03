@@ -6,12 +6,11 @@ class ModelExtensionPaymentULCard extends Model
     {
         $this->load->language('extension/payment/ul_card');
 
-
-        return array(
+        return [
             'code' => 'ul_card',
             'title' => $this->language->get('text_title'),
             'terms' => '',
             'sort_order' => $this->config->get('payment_ul_card_sort_order'),
-        );
+        ];
     }
 }
