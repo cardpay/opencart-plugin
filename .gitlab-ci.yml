@@ -1,0 +1,66 @@
+stages:
+  - owasp_depcheck
+  - sonar_scan
+  - publish
+
+variables:
+  SLACK_CHANNEL: "#plugin-pipeline"
+  SDK_FOLDER: opencart-plugin
+  GITHUB_REPO_URL: https://github.com/cardpay/${SDK_FOLDER}.git
+
+dependencies-check:
+  stage: owasp_depcheck
+  image: docker-registry.cardpay-test.com/owasp-depcheck
+  only:
+    - master
+    - merge_requests
+  before_script:
+    - mkdir -p ci/reports build/reports
+  script:
+    - /usr/share/dependency-check/bin/dependency-check.sh --noupdate --enableExperimental --out build/reports --project CMSPlugins-Opencart --scan "admin" "catalog"
+  after_script:
+    - cp build/reports/dependency-check-report.html ci/reports/
+  artifacts:
+    paths:
+      - "ci/reports/dependency-check-report.*"
+  allow_failure: false
+
+run_sonarscanner:
+  stage: sonar_scan
+  needs: ["dependencies-check"]
+  image: sonarsource/sonar-scanner-cli:latest
+  only:
+    - master
+    - merge_requests
+  except:
+    changes:
+      - "ci/*"
+  variables:
+    GIT_DEPTH: 0
+  before_script:
+    - echo sonar.projectName=${CI_PROJECT_PATH}>>/opt/sonar-scanner/conf/sonar-scanner.properties
+    - echo sonar.projectKey=${CI_PROJECT_PATH}|sed "s/\//-/g">>/opt/sonar-scanner/conf/sonar-scanner.properties
+    - cat cicd/sonar-project.properties>>/opt/sonar-scanner/conf/sonar-scanner.properties
+    - cat /opt/sonar-scanner/conf/sonar-scanner.properties
+  script:
+    - sonar-scanner
+  artifacts:
+    paths:
+      - "ci/reports/dependency-check-report.*"
+  allow_failure: false
+
+github:
+  stage: publish
+  # needs: ["run_sonarscanner"]
+  image: docker-registry.cardpay-test.com/cardpay/sdk-worker:latest
+  only:
+    refs:
+      - master
+      - features/DOT-1365-publish-github
+  except:
+    changes:
+      - cicd/*
+      - .gitlab-ci.yml
+  script:
+    - cicd/version_increase.sh ${CI_COMMIT_REF_NAME}
+    - publish_to_github_v2.sh ${SDK_FOLDER}
