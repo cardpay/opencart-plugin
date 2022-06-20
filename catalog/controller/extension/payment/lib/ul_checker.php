@@ -14,7 +14,7 @@ class ULFormChecker
         'installments' => ['/[\d]{1,2}/', 'i', ['cue220', 'cue220']],
     ];
 
-    protected $language;
+    protected Language $language;
 
     public function __construct($language)
     {
@@ -33,7 +33,7 @@ class ULFormChecker
 
             //remove mask
             if ($rule[1] === 'i') {
-                $value = preg_replace('/[^\d]+/', '', $value);
+                $value = preg_replace('/\D/', '', $value);
             }
 
             if (empty($value)) {
@@ -64,17 +64,25 @@ class ULFormChecker
         }
     }
 
-    protected function isValidCPF($cpf)
+    /**
+     * @param string $cpf
+     * @return bool
+     */
+    protected function isValidCPF(string $cpf): bool
     {
-        return (strlen(preg_replace('/[^\d]/', '', $cpf)) === 11);
+        return (strlen(preg_replace('/\D/', '', $cpf)) === 11);
     }
 
-    protected function luhnAlgorithm($digit): bool
+    /**
+     * @param string $digit
+     * @return bool
+     */
+    protected function luhnAlgorithm(string $digit): bool
     {
-        $number = strrev(preg_replace('/[^\d]+/', '', $digit));
+        $number = strrev(preg_replace('/\D/', '', $digit));
         $sum = 0;
         for ($i = 0, $j = strlen($number); $i < $j; $i++) {
-            if (($i % 2) == 0) {
+            if (($i % 2) === 0) {
                 $val = $number[$i];
             } else {
                 $val = $number[$i] * 2;

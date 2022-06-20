@@ -1,10 +1,18 @@
 <?php
 
+use Cart\Customer;
+
 require_once __DIR__ . "/lib/unlimint.php";
 require_once __DIR__ . "/lib/ul_util.php";
 require_once __DIR__ . "/lib/ul_checker.php";
 require_once __DIR__ . "/ul_general.php";
 
+/**
+ * @property Customer $customer
+ * @property Language $language
+ * @property Loader $load
+ * @property Url $url
+ */
 class ControllerExtensionPaymentULCard extends ControllerExtensionPaymentULGeneral
 {
     public const CHECKOUT_ORDER = 'checkout/order';
@@ -13,7 +21,11 @@ class ControllerExtensionPaymentULCard extends ControllerExtensionPaymentULGener
     private const INSTALLMENTS_MIN = 1;
     private const INSTALLMENTS_MAX = 12;
 
-    public function index()
+    /**
+     * @throws UnlimintException
+     * @throws Exception
+     */
+    public function index(): string
     {
         $data['customer_email'] = $this->customer->getEmail();
         $data['button_confirm'] = $this->language->get('button_confirm');
@@ -66,7 +78,11 @@ class ControllerExtensionPaymentULCard extends ControllerExtensionPaymentULGener
         return $this->load->view($view_uri, $data);
     }
 
-    private function build_installment_options($total_amount)
+    /**
+     * @param float $total_amount
+     * @return array
+     */
+    private function build_installment_options(float $total_amount): array
     {
         $options = [];
 
@@ -80,16 +96,23 @@ class ControllerExtensionPaymentULCard extends ControllerExtensionPaymentULGener
         return $options;
     }
 
-    private function format_amount($amount)
+    /**
+     * @param float $amount
+     * @return string
+     */
+    private function format_amount(float $amount): string
     {
-        if (empty($amount)) {
-            return $amount;
+        if ($amount === 0.0) {
+            return '0';
         }
 
         return number_format($amount, 2);
     }
 
-    public function payment()
+    /**
+     * @throws JsonException
+     */
+    public function payment(): void
     {
         $this->language->load('extension/payment/ul_card');
 
@@ -147,7 +170,11 @@ class ControllerExtensionPaymentULCard extends ControllerExtensionPaymentULGener
         return $this->customer->getId();
     }
 
-    public function _getClientId($at)
+    /**
+     * @param string $at
+     * @return string
+     */
+    public function _getClientId(string $at): string
     {
         $t = explode("-", $at);
         if (!empty($t)) {

@@ -2,7 +2,10 @@
 
 class ModelExtensionPaymentUlPix extends Model
 {
-    public function getMethod()
+    /**
+     * @return array
+     */
+    public function getMethod(): array
     {
         $this->load->language('extension/payment/ul_pix');
 

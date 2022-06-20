@@ -6,9 +6,19 @@ require_once __DIR__ . "/ul_general.php";
 require_once __DIR__ . "/ul_pix.php";
 require_once __DIR__ . "/ul_ticket.php";
 
+/**
+ * @property Loader $load
+ * @property ModelCheckoutOrder $model_checkout_order
+ * @property Language $language
+ */
 class ControllerExtensionPaymentULAltGateway extends ControllerExtensionPaymentULGeneral
 {
-    public function getData($extension_payment_ul)
+    /**
+     * @param $extension_payment_ul
+     * @return array
+     * @throws UnlimintException
+     */
+    public function getData($extension_payment_ul): array
     {
         $this->load->language($extension_payment_ul);
 
@@ -26,7 +36,7 @@ class ControllerExtensionPaymentULAltGateway extends ControllerExtensionPaymentU
         $data['ask_cpf'] = $this->config->get('payment_ul_ticket_ask_cpf');
         $data['countryType'] = $orderInfo['payment_country'];
 
-        if ($orderInfo['payment_zone_code'] != null && $orderInfo['payment_zone'] != null) {
+        if (!is_null($orderInfo['payment_zone_code']) && !is_null($orderInfo['payment_zone'])) {
             $data['payment_zone_code'] = $orderInfo['payment_zone_code'];
             $data['payment_zone'] = $orderInfo['payment_zone'];
         } else {
@@ -37,12 +47,16 @@ class ControllerExtensionPaymentULAltGateway extends ControllerExtensionPaymentU
         return $data;
     }
 
-    public function getPaymentData($ul_prefix)
+    /**
+     * @param $ul_prefix
+     * @throws JsonException
+     */
+    public function getPaymentData($ul_prefix): void
     {
         try {
             $this->load->model(self::CHECKOUT_ORDER);
 
-            $this->orderInfo['post_code'] = $_REQUEST['postcode'];
+            $this->orderInfo['post_code'] = $_REQUEST['postcode'] ?? '';
 
             $data = $this->get_instance_ul_util()->createApiRequest($this->orderId, $this->orderInfo);
             $data['payment_method'] = $ul_prefix;
@@ -57,19 +71,19 @@ class ControllerExtensionPaymentULAltGateway extends ControllerExtensionPaymentU
     }
 
     /**
-     * @param $orderInfo
+     * @param array $orderInfo
      * @return array
      */
-    protected function getPostCode($orderInfo)
+    protected function getPostCode(array $orderInfo): array
     {
-        if (static::UL_PREFIX != 'ticket') {
+        if (static::UL_PREFIX !== 'ticket') {
             return [];
         }
 
         $data = [];
 
         $zip = $this->getZip($orderInfo);
-        $data['payment_postcode'] = (preg_match('/^[0-9]{8}$/', $zip)) ? $zip : '';
+        $data['payment_postcode'] = (preg_match('/^\d{8}$/', $zip)) ? $zip : '';
 
         $data['labels'] = $data['errors'] = [];
 

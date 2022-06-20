@@ -4,12 +4,18 @@ class ModelExtensionPaymentUlPaymentMigrations extends Model
 {
     private const STORE_ID = 0;
 
-    protected function getCodeInsert($code, $key, $value)
+    /**
+     * @param string $code
+     * @param string $key
+     * @param string $value
+     * @return string
+     */
+    protected function getCodeInsert(string $code, string $key, string $value): string
     {
         return sprintf("(%s, '%s', '%s%s', '%s', '0')", self::STORE_ID, $code, $code, $key, $value);
     }
 
-    public function install($code_prefix)
+    public function install($code_prefix): void
     {
         if ($code_prefix === 'payment_ul_card_') {
             $prefix = "INSERT INTO " . DB_PREFIX . "event (`event_id`, `code`, `trigger`, `action`, `status`, `sort_order`) VALUES ";
@@ -30,7 +36,7 @@ class ModelExtensionPaymentUlPaymentMigrations extends Model
                     `serialized`
                 )
             VALUES
-            " . join(', ', [
+            " . implode(', ', [
                     $this->getCodeInsert($code_prefix, 'new_status', 1),
                     $this->getCodeInsert($code_prefix, 'processing', 1),
                     $this->getCodeInsert($code_prefix, 'declined', 10),
@@ -41,8 +47,8 @@ class ModelExtensionPaymentUlPaymentMigrations extends Model
                     $this->getCodeInsert($code_prefix, 'chargeback_resolved', 5)
                 ]);
 
-            if ($code_prefix == 'payment_ul_card_') {
-                $sql .= "," . join(
+            if ($code_prefix === 'payment_ul_card_') {
+                $sql .= "," . implode(
                     ', ',
                     [$this->getCodeInsert($code_prefix, 'refunded', 11),
                             $this->getCodeInsert($code_prefix, 'voided', 7),
@@ -103,7 +109,7 @@ class ModelExtensionPaymentUlPaymentMigrations extends Model
         $this->db->query($sql);
     }
 
-    public function uninstall($code_prefix)
+    public function uninstall($code_prefix): void
     {
         if ($code_prefix === 'payment_ul_card_') {
             $prefix = "DELETE FROM " . DB_PREFIX . "event WHERE " . DB_PREFIX . "event.code=";

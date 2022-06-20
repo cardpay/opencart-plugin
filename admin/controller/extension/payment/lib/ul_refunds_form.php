@@ -1,17 +1,19 @@
 <?php
 
+use Cart\Currency;
+
 class UlRefundsForm
 {
-    protected $model_sale_order;
-    protected $language;
-    protected $currency;
-    protected $instance_unlimint;
-    protected $instance_refund;
-    protected $loader;
-    protected $order;
-    protected $decimals;
-    protected $order_info;
-    protected $refunded_items;
+    protected Proxy $model_sale_order;
+    protected Language $language;
+    protected Currency $currency;
+    protected Unlimint $instance_unlimint;
+    protected ULRefunds $instance_refund;
+    protected Loader $loader;
+    protected array $order;
+    protected int $decimals;
+    protected array $order_info;
+    protected array $refunded_items;
 
     public function drawRefundForm(): string
     {
@@ -181,11 +183,11 @@ class UlRefundsForm
     }
 
     /**
-     * @param mixed $instance_refund
+     * @param ULRefunds $instance_refund
      *
      * @return self
      */
-    public function setInstanceRefund($instance_refund): self
+    public function setInstanceRefund(ULRefunds $instance_refund): self
     {
         $this->instance_refund = $instance_refund;
 

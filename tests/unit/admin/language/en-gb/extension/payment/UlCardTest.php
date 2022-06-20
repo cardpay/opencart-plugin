@@ -4,7 +4,7 @@ use PHPUnit\Framework\TestCase;
 
 class AdminUlCardTest extends TestCase
 {
-    public function testAdminCardEnglishPhrases()
+    public function testAdminCardEnglishPhrases(): void
     {
         include_once __DIR__ . '/../../../../../../../admin/language/en-gb/extension/payment/ul_card.php';
 

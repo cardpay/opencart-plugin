@@ -3,9 +3,18 @@
         font-size:small;
         color:#900;
     }
+    table.refund-buttons {
+        width: 100%;
+    }
+    td.refund-buttons {
+        width:50%;
+    }
+    #ul-refund-products-form td,#ul-refund-products-form th{
+        font-size:13px;
+    }
 </style>
 <script type='text/javascript' src='./view/javascript/ul/card/ul_refund.js'></script>
-<div id="ul-refund-form" style="display:none">
+<td id="ul-refund-form" style="display:none">
     <hr>
     <h3 class="panel-title" id="ul_refund_title"><em class="fa fa-refresh"></em> {{ labels.ul_refund }}</h3>
     <div>&nbsp;</div>
@@ -15,6 +24,7 @@
             <input type="hidden" id="ul-store-id" value="{{ store_id }}">
             <div class="table-responsive">
                 <table class="table table-bordered" aria-describedby="ul_refund_title">
+                    <thead>
                     <tr>
                         <th>{{ labels.ul_product }}</th>
                         <th>{{ labels.ul_model }}</th>
@@ -22,6 +32,8 @@
                         <th>{{ labels.ul_quantity }}</th>
                         <th>{{ labels.ul_amount }}</th>
                     </tr>
+                    </thead>
+                    <tbody>
                     {% set product_row = 0 %}
                     {% for order_product in order_products %}
                         <tr>
@@ -135,14 +147,21 @@
             <input type="text" name="ul_reason" id="ul-reason" value="" class="form-control">
         </div>
     </div>
-    <div class="row">
-        <div class="col col-sm-6">
+    <table class="refund-buttons" aria-label="Refund buttons">
+        <thead>
+        <tr><th colspan="2"></th></tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td>
             <button class="btn" type="button" onclick="jQuery('#refund-form').toggle()">{{ labels.ul_cancel }}</button>
-        </div>
-        <div class="col col-sm-6 text-right">
+        </td>
+        <td class="text-right">
             <button class="btn btn-primary" type="button" onclick="ulRefundPayment()">{{ labels.ul_refund }}</button>
-        </div>
-    </div>
+        </td>
+        </tr>
+        </tbody>
+    </table>
     <!--UL Refund End-->
 </div>
 </div>

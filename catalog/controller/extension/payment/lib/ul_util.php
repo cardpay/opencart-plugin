@@ -15,9 +15,9 @@ class ULOpencartUtil
     /**
      * @var Unlimint $ul
      */
-    private $ul;
+    private Unlimint $ul;
 
-    private $ul_order_status_id = [
+    private array $ul_order_status_id = [
         "pending" => 1,
         "new" => 1,
         "in_process" => 1,
@@ -44,22 +44,25 @@ class ULOpencartUtil
 
     public string $error = '';
 
-    public function setLog($log)
+    public function setLog($log): self
     {
         $this->log = $log;
+        return $this;
     }
 
-    public function setUl($ul)
+    public function setUl(Unlimint $ul): self
     {
         $this->ul = $ul;
+        return $this;
     }
 
-    public function setConfig($config)
+    public function setConfig(Config $config): self
     {
         $this->config = $config;
+        return $this;
     }
 
-    public function writeLog($text)
+    public function writeLog($text): void
     {
         if (isset($this->log)) {
             $this->log->write($text);
@@ -69,7 +72,7 @@ class ULOpencartUtil
     public function getStatusId($status, $prefix)
     {
         $status = strtolower($status);
-        $status = preg_replace('#[^a-z_]+#s', '', $status);
+        $status = preg_replace('#[^a-z_]+#', '', $status);
         if (!isset($this->ul_order_status_id[$status])) {
             return $this->ul_order_status_id['pending'];
         }
@@ -83,7 +86,7 @@ class ULOpencartUtil
         return ($this->ul_order_status_id['pending']);
     }
 
-    public function createAnalytics($resultModules, $token, $customerEmail, $userLogged)
+    public function createAnalytics($resultModules, $token, $customerEmail, $userLogged): array
     {
         return [
             'publicKey' => "",
@@ -98,7 +101,7 @@ class ULOpencartUtil
         ];
     }
 
-    protected function saveRefund($order_id, $payment, $model)
+    protected function saveRefund($order_id, $payment, $model): bool
     {
         $order = $model->getOrder($order_id);
         if (empty($order) || $payment['refund_data']['status'] !== 'COMPLETED') {
@@ -122,7 +125,7 @@ class ULOpencartUtil
      * @param array $payment
      * @param DB $db
      */
-    public function completeOrderData($type, $payment, $db)
+    public function completeOrderData(string $type, array $payment, DB $db): void
     {
         $order_id = (int)$payment['merchant_order']['id'];
         $res = $db->query('SELECT * FROM ' . DB_PREFIX . 'ul_orders 
@@ -136,17 +139,20 @@ class ULOpencartUtil
             empty($order_info) ||
             $order_info['is_complete'] ||
             (
-                $received_transaction_id == $order_info['transaction_id'] &&
-                $received_amount == $order_info['initial_amount'])
+                (int)$received_transaction_id === (int)$order_info['transaction_id'] &&
+                (float)$received_amount === (float)$order_info['initial_amount'])
         ) {
             return;
         }
         $this->ul->completeOrderData($order_id, $received_amount, $received_transaction_id);
     }
 
-    public function isFinalRefund($payment)
+    public function isFinalRefund($payment): bool
     {
-        return isset($payment['payment_data']['remaining_amount']) && ($payment['payment_data']['remaining_amount'] == 0);
+        return isset(
+                $payment['payment_data']['remaining_amount']) &&
+            (float)($payment['payment_data']['remaining_amount'] === 0.0
+            );
     }
 
     /**
@@ -155,7 +161,10 @@ class ULOpencartUtil
      * @param ?array $order_info
      * @return bool
      */
-    protected function isDoubledPaymentFailed($result_order_status, $transaction_id, $order_info)
+    protected function isDoubledPaymentFailed(
+        string $result_order_status,
+        string $transaction_id,
+        ?array $order_info): bool
     {
         return
             in_array($result_order_status, self::FAILED_STATUSES) &&
@@ -165,7 +174,7 @@ class ULOpencartUtil
             $order_info['transaction_id'] !== $transaction_id;
     }
 
-    protected function processRefundData($order_id, $prefix, $callback_data, $model)
+    protected function processRefundData($order_id, $prefix, $callback_data, $model): bool
     {
         if ($this->isFinalRefund($callback_data)) {
             $status_id = $this->getStatusId('REFUNDED', $prefix);
@@ -177,14 +186,19 @@ class ULOpencartUtil
 
     /**
      * @param array $callback_data
-     * @param ModelCheckoutOrder $model
+     * @param Proxy|ModelCheckoutOrder $model
      * @param DB $db
      * @param string $prefix
      * @return bool
+     * @throws JsonException
      */
-    public function updateOrder($callback_data, $model, $db, $prefix): bool
+    public function updateOrder(
+        array $callback_data,
+        Proxy $model,
+        DB $db,
+        string $prefix): bool
     {
-        $this->ul->writeLog('Callback: ' . json_encode($callback_data));
+        $this->ul->writeLog('Callback: ' . json_encode($callback_data, JSON_THROW_ON_ERROR));
         $order_id = $callback_data['merchant_order']['id'] ?? 0;
         $order = ($order_id) ? $model->getOrder($order_id) : [];
         $type = 'payment_data';
@@ -238,7 +252,7 @@ class ULOpencartUtil
         return $result;
     }
 
-    public function updateOrderPayment($order_info, $model, $statusId, $payment_id)
+    public function updateOrderPayment($order_info, $model, $statusId, $payment_id): void
     {
         try {
             $model->addOrderHistory(
@@ -253,12 +267,12 @@ class ULOpencartUtil
         }
     }
 
-    public function getModuleVersion()
+    public function getModuleVersion(): string
     {
         return $this->moduleVersion;
     }
 
-    public function createApiRequest($orderId, $order_info, $capture = true)
+    public function createApiRequest($orderId, $order_info, $capture = true): array
     {
         $this->get_prefix = new UnlimintOrderInfo();
         $prefix = $this->get_prefix->getPrefix($order_info['payment_code']);
@@ -266,7 +280,7 @@ class ULOpencartUtil
         $id = uniqid('', true);
         $customerId = uniqid('', true);
 
-        $total_price = round($order_info['total'] * $order_info['currency_value'], 2);
+        $total_price = round($order_info['total'] * $order_info['currency_value'],2);
         $notification_url = $order_info['store_url'] . 'index.php?route=extension/payment/ul_' . $prefix . '/callback';
 
         $data = [
@@ -335,7 +349,9 @@ class ULOpencartUtil
             $this->ul->setOrderData($order_info, $result, $data);
 
             return $redirectUrl;
-        } elseif (isset($result['response']['message'])) {
+        }
+
+        if (isset($result['response']['message'])) {
             $this->error = $result['response']['message'];
         }
 

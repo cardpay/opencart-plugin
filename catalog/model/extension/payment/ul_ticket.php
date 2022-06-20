@@ -2,7 +2,7 @@
 
 class ModelExtensionPaymentUlTicket extends Model
 {
-    public function getMethod()
+    public function getMethod(): array
     {
         $this->load->language('extension/payment/ul_ticket');
 

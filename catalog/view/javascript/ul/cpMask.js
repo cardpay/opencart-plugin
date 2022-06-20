@@ -24,17 +24,11 @@ function ulCpfMask(o, f) {
 }
 
 function ulExpDate(value) {
-    if (ulIsMobile()) {
-        return value;
-    }
     value = value.replace(/\D/g, "");
     value = value.replace(/^(\d{2})(\d)/g, "$1/$2");
     return value;
 }
 function ulMcc(value) {
-    if (ulIsMobile()) {
-        return value;
-    }
     value = value.replace(/\D/g, "");
     value = value.replace(/^(\d{4})(\d)/g, "$1 $2");
     value = value.replace(/^(\d{4})\s(\d{4})(\d)/g, "$1 $2 $3");
@@ -44,9 +38,6 @@ function ulMcc(value) {
 }
 
 function ulDocNumber(value) {
-    if (ulIsMobile()) {
-        return value;
-    }
     value = value.replace(/\D/g, "");
     value = value.replace(/^(\d{3})(\d)/g, "$1.$2");
     value = value.replace(/^(\d{3})\.(\d{3})(\d)/g, "$1.$2.$3");
@@ -70,15 +61,6 @@ function ulValidateMonthYear() {
 
 function ulInteger(v) {
     return v.replace(/\D/g, "");
-}
-
-function ulIsMobile() {
-    try {
-        document.createEvent("TouchEvent");
-        return true;
-    } catch (e) {
-        return false;
-    }
 }
 
 const displayCardBrand = function () {

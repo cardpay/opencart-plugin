@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../../../../../../catalog/controller/extension/payme
 
 class UnlimintExceptionTest extends TestCase
 {
-    public function testException()
+    public function testException(): void
     {
         $exceptionMessage = 'test';
         $unlimintException = new UnlimintException($exceptionMessage);

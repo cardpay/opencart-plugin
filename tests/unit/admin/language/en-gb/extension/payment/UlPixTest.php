@@ -4,7 +4,7 @@ use PHPUnit\Framework\TestCase;
 
 class AdminUlPixTest extends TestCase
 {
-    public function testAdminPixEnglishPhrases()
+    public function testAdminPixEnglishPhrases(): void
     {
         include_once __DIR__ . '/../../../../../../../admin/language/en-gb/extension/payment/ul_pix.php';
 

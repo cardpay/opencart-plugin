@@ -10,7 +10,7 @@ class ControllerExtensionPaymentULPix extends ControllerExtensionPaymentULAltGat
     public const EXTENSION_PAYMENT_UL_PIX = 'extension/payment/ul_pix';
     public const UL_PREFIX = 'pix';
 
-    public function index()
+    public function index(): string
     {
         $data = $this->getData(self::EXTENSION_PAYMENT_UL_PIX);
 
@@ -21,7 +21,10 @@ class ControllerExtensionPaymentULPix extends ControllerExtensionPaymentULAltGat
         return $this->load->view(self::EXTENSION_PAYMENT_UL_PIX, $data);
     }
 
-    public function payment()
+    /**
+     * @throws JsonException
+     */
+    public function payment(): void
     {
         $this->load->language(self::EXTENSION_PAYMENT_UL_PIX);
 

@@ -4,7 +4,7 @@ use PHPUnit\Framework\TestCase;
 
 class AdminUlBoletoTest extends TestCase
 {
-    public function testAdminBoletoEnglishPhrases()
+    public function testAdminBoletoEnglishPhrases(): void
     {
         include_once __DIR__ . '/../../../../../../../admin/language/en-gb/extension/payment/ul_ticket.php';
 

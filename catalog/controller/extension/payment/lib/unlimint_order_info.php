@@ -9,10 +9,10 @@ class UnlimintOrderInfo
             'ul_pix' => 'pix'
         ];
 
-    public function getPrefix($payment_code)
+    public function getPrefix($payment_code): string
     {
-        if (isset(UnlimintOrderInfo::UL_PREFIX[$payment_code])) {
-            $prefix = UnlimintOrderInfo::UL_PREFIX[$payment_code];
+        if (isset(self::UL_PREFIX[$payment_code])) {
+            $prefix = self::UL_PREFIX[$payment_code];
         }
 
         return $prefix ?? '';

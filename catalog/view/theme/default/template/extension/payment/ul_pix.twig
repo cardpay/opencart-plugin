@@ -10,34 +10,37 @@
             <div id="form-pix">
                 <div id="formULB">
                     <div class="form-row" id="formFisica">
-                        <div class="form-row">
-                            <div class="form-col-6">
+                        <div class="form-col-12">
+                            <div>
                                 <label for='docnumber' id='ul-cpf-label'
                                        class='ul-label-form title-cpf'>CPF
                                     <em>*</em></label>
-                                <br>
-                                <br>
+                            </div>
+                            <div>
                                 <input type='text'
                                        onkeyup="formatUlBoletoCpf(this.id);" onfocusout="validateUlInput();"
                                        class='ul-form-control'
                                        id='docnumber' data-checkout="docNumber" name='unlimint_custom[docnumber]'
                                        autocomplete='off' maxlength='14'
                                        placeholder='XXX.XXX.XXX-XX'><br/>
-                                <span class='ul-error' data-main='#ul-cpf-pix'
-                                      id='cpf-error'>{{ error_invalid_cpf }}</span>
-                                <span class='ul-error' data-main='#ul-cpf-pix'
-                                      id='cpf-error-1'>{{ error_empty_cpf }}</span><br/>
                             </div>
+                            <span class='ul-error' data-main='#ul-cpf-pix'
+                                  id='cpf-error'>{{ error_invalid_cpf }}</span>
+                            <span class='ul-error' data-main='#ul-cpf-pix'
+                                  id='cpf-error-1'>{{ error_empty_cpf }}</span><br/>
                         </div>
                     </div>
-
-                    <div class="col-md-12" id="div_payment_methods" style="text-align: center; margin-left: 30%;"></div>
-
-                    <img src="admin/view/image/payment/{{ action }}/ul_pix.png" width="99" height="35" alt="Pix">
+                    <div class="form-row">
+                        <div class="col-md-12" id="div_payment_methods">
+                            <img src="admin/view/image/payment/{{ action }}/ul_pix.png" width="99" height="35"
+                                 alt="Pix">
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
                     <br>
                     <br>
                     <div class="form-row">
-                        <div class="form-col-12">
+                        <div class="col-md-12">
                             <input type="hidden" id="payment_method_id"/>
                             <input type="submit" id="btnSubmit" name="btnSubmit" value="{{ payment_button }}"/>
                         </div>

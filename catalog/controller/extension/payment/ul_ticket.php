@@ -10,7 +10,7 @@ class ControllerExtensionPaymentULTicket extends ControllerExtensionPaymentULAlt
     public const EXTENSION_PAYMENT_UL_TICKET = 'extension/payment/ul_ticket';
     public const UL_PREFIX = 'ticket';
 
-    public function index()
+    public function index(): string
     {
         $data = $this->getData(self::EXTENSION_PAYMENT_UL_TICKET);
 
@@ -21,7 +21,10 @@ class ControllerExtensionPaymentULTicket extends ControllerExtensionPaymentULAlt
         return $this->load->view(self::EXTENSION_PAYMENT_UL_TICKET, $data);
     }
 
-    public function payment()
+    /**
+     * @throws JsonException
+     */
+    public function payment(): void
     {
         $this->load->language(self::EXTENSION_PAYMENT_UL_TICKET);
 

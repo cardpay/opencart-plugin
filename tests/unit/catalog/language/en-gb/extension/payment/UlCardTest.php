@@ -4,7 +4,7 @@ use PHPUnit\Framework\TestCase;
 
 class CatalogUlCardTest extends TestCase
 {
-    public function testCatalogCardEnglishPhrases()
+    public function testCatalogCardEnglishPhrases(): void
     {
         include_once __DIR__ . '/../../../../../../../catalog/language/en-gb/extension/payment/ul_card.php';
 

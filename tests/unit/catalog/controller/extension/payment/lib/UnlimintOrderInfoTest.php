@@ -6,14 +6,14 @@ require_once __DIR__ . '/../../../../../../../catalog/controller/extension/payme
 
 class UnlimintOrderInfoTest extends TestCase
 {
-    private $prefixesToTest = [
+    private array $prefixesToTest = [
         '' => '',
         'ul_card' => 'card',
         'ul_ticket' => 'ticket',
         'ul_pix' => 'pix'
     ];
 
-    public function testOrderInfo()
+    public function testOrderInfo(): void
     {
         $unlimintOrderInfo = new UnlimintOrderInfo();
 

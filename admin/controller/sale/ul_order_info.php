@@ -6,7 +6,7 @@ class ControllerSaleUlOrderInfo extends Controller
 {
     public const OC_PROCESSING_STATUS_ID = 2;
 
-    protected function renderButtons($style, $refund)
+    protected function renderButtons($refund): void
     {
         $order_id = (int)$this->request->get['order_id'];
         $order_info = $this->model_sale_order->getOrder($order_id);
@@ -27,8 +27,8 @@ class ControllerSaleUlOrderInfo extends Controller
             ]
         ];
         if (
-            ($order_info['order_status_id'] == self::OC_PROCESSING_STATUS_ID) &&
-            ($this->config->get('payment_ul_card_capture_payment') != '1')
+            ((int)$order_info['order_status_id'] === self::OC_PROCESSING_STATUS_ID) &&
+            ((int)$this->config->get('payment_ul_card_capture_payment') !== 1)
         ) {
             $data['buttons']['capture'] = true;
             $data['buttons']['cancel'] = true;
@@ -56,19 +56,19 @@ class ControllerSaleUlOrderInfo extends Controller
         echo $t;
     }
 
-    public function edit()
+    public function edit(): void
     {
         $this->language->load('extension/payment/ul_card');
         $this->refund();
     }
 
-    public function refund()
+    public function refund(): void
     {
-        $this->renderButtons('', true);
+        $this->renderButtons(true);
     }
 
-    public function info($style = 'line-height:12px; height: 31px; ')
+    public function info(): void
     {
-        $this->renderButtons($style, false);
+        $this->renderButtons(false);
     }
 }

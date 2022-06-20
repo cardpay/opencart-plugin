@@ -4,6 +4,10 @@ require_once __DIR__ . '/../../../../admin/controller/extension/payment/ul_card.
 require_once __DIR__ . '/../../../../admin/controller/extension/payment/ul_ticket.php';
 require_once __DIR__ . '/../../../../admin/model/extension/payment/ul_payment_migrations.php';
 
+/**
+ * @property Loader $load
+ * @property Config $config
+ */
 class ControllerExtensionPaymentUl extends Controller
 {
     public const COMMON_EXTENSION = 'extension/payment/ul_payment_migrations';
@@ -26,37 +30,22 @@ class ControllerExtensionPaymentUl extends Controller
         'chargeback_resolved',
     ];
 
-    public function loadCommonHeader($extension_payment_ul, $user_token)
+
+    /**
+     * @throws Exception
+     */
+    public function loadCommonHeader(string $extension_payment_ul): void
     {
         $this->load->model('setting/setting');
-
         $this->load->language($extension_payment_ul);
-
-        $data['breadcrumbs'] = [];
-
-        $token_session = $user_token . $this->session->data['user_token'];
-
-        $data['breadcrumbs'][] = [
-            'text' => $this->language->get('text_home'),
-            'href' => $this->url->link('common/dashboard', $token_session, true),
-        ];
-
-        $data['breadcrumbs'][] = [
-            'text' => $this->language->get('text_payment'),
-            'href' => $this->url->link('extension/payment', $token_session, true),
-        ];
-
-        $data['breadcrumbs'][] = [
-            'text' => $this->language->get('heading_title'),
-            'href' => $this->url->link($extension_payment_ul, $token_session, true),
-        ];
-
-        $data['action'] = $this->url->link($extension_payment_ul, $token_session, true);
-
-        $data['cancel'] = $this->url->link('extension/extension', $token_session, true);
     }
 
-    public function getData($posts, $prefix)
+    /**
+     * @param array $posts
+     * @param string $prefix
+     * @return array
+     */
+    public function getData(array $posts, string $prefix): array
     {
         $posts = array_merge(self::POST_FIELDS, $posts);
 
@@ -81,15 +70,17 @@ class ControllerExtensionPaymentUl extends Controller
     /**
      * @param array $posts_fields
      * @return array
+     * @throws Exception
      */
-    public function loadCommonFooter(array $posts_fields)
+    public function loadCommonFooter(array $posts_fields): array
     {
+        $data = $this->getData($posts_fields, static::CODE);
+
+        $data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true);
         $data['button_save'] = $this->language->get('button_save');
         $data['button_cancel'] = $this->language->get('button_cancel');
 
         $data['error_warning'] = $this->_error['warning'] ?? '';
-
-        $data = $this->getData($posts_fields, static::CODE);
 
         $this->model_setting_setting->editSetting(static::CODE, $data);
 
@@ -103,13 +94,19 @@ class ControllerExtensionPaymentUl extends Controller
         return $data;
     }
 
-    public function install()
+    /**
+     * @throws Exception
+     */
+    public function install(): void
     {
         $this->load->model(self::COMMON_EXTENSION);
         $this->model_extension_payment_ul_payment_migrations->install(static::CODE);
     }
 
-    public function uninstall()
+    /**
+     * @throws Exception
+     */
+    public function uninstall(): void
     {
         $this->load->model(self::COMMON_EXTENSION);
         $this->model_extension_payment_ul_payment_migrations->uninstall(static::CODE);

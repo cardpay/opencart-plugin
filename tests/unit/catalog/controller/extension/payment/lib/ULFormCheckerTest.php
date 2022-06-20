@@ -6,9 +6,9 @@ require_once __DIR__ . '/../../../../../../../catalog/controller/extension/payme
 
 class ULFormCheckerTest extends TestCase
 {
-    private $uLFormChecker;
+    private ULFormChecker $uLFormChecker;
 
-    private $dataToTest = [
+    private array $dataToTest = [
         'cardNumber' => '4000000000000002',
         'cardholderName' => 'John Smith',
         'cardExpirationMonth' => 10,
@@ -23,7 +23,7 @@ class ULFormCheckerTest extends TestCase
         $this->uLFormChecker = new ULFormChecker('en');
     }
 
-    public function testWithUsingTheTestingData()
+    public function testWithUsingTheTestingData(): void
     {
         foreach ($this->dataToTest as $field => $fieldValue) {
             $errors = $this->uLFormChecker->check([

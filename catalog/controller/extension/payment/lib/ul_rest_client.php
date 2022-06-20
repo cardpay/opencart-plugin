@@ -9,9 +9,15 @@ require_once __DIR__ . '/unlimint_exception.php';
  */
 class ULRestClient
 {
-    public static $check_loop = 0;
+    public static int $check_loop;
 
-    private static function buildRequest($api_base_url, $request)
+    /**
+     * @param string $api_base_url
+     * @param array $request
+     * @return false|CurlHandle
+     * @throws UnlimintException|JsonException
+     */
+    private static function buildRequest(string $api_base_url, array $request)
     {
         self::prepareBuildRequest($request);
 
@@ -24,7 +30,7 @@ class ULRestClient
         self::prepareHeaders($request, $default_content_type, $headers, $json_content, $form_content);
 
         if ($default_content_type) {
-            array_push($headers, "content-type: application/json");
+            $headers[] = "content-type: application/json";
         }
 
         $connect = self::buildConnection($request, $headers, $api_base_url);
@@ -38,7 +44,13 @@ class ULRestClient
         return $connect;
     }
 
-    protected static function buildConnection($request, $headers, $api_base_url)
+    /**
+     * @param array $request
+     * @param array $headers
+     * @param string $api_base_url
+     * @return bool|resource
+     */
+    protected static function buildConnection(array $request, array $headers, string $api_base_url)
     {
         $connect = curl_init();
         curl_setopt($connect, CURLOPT_USERAGENT, "Unlimint PHP SDK v" . Unlimint::VERSION);
@@ -57,23 +69,27 @@ class ULRestClient
         return $connect;
     }
 
-    protected static function prepareHeaders(&$request, &$default_content_type, &$headers, &$json_content, &$form_content)
+    protected static function prepareHeaders($request, &$default_content_type, &$headers, &$json_content, &$form_content): void
     {
         if (isset($request["headers"]) && is_array($request["headers"])) {
             foreach ($request["headers"] as $h => $v) {
                 $h = strtolower($h);
                 $v = strtolower($v);
-                if ($h == "content-type") {
+                if ($h === "content-type") {
                     $default_content_type = false;
-                    $json_content = $v == "application/json";
-                    $form_content = $v == "application/x-www-form-urlencoded";
+                    $json_content = ($v === "application/json");
+                    $form_content = ($v === "application/x-www-form-urlencoded");
                 }
-                array_push($headers, $h . ": " . $v);
+                $headers[] = $h . ": " . $v;
             }
         }
     }
 
-    protected static function prepareBuildRequest($request)
+    /**
+     * @param $request
+     * @throws UnlimintException
+     */
+    protected static function prepareBuildRequest($request): void
     {
         if (!extension_loaded("curl")) {
             throw new UnlimintException("cURL extension not found. You need to enable cURL in your php.ini or another configuration you have.");
@@ -88,19 +104,25 @@ class ULRestClient
         }
     }
 
-    private static function formatRequestData(&$request, $json_content, $form_content)
+    /**
+     * @param $request
+     * @param $json_content
+     * @param $form_content
+     * @throws UnlimintException|JsonException
+     */
+    private static function formatRequestData(&$request, $json_content, $form_content): void
     {
         if ($json_content) {
-            if (gettype($request["data"]) === "string") {
-                json_decode($request["data"], true);
+            if (is_string($request["data"])) {
+                json_decode($request["data"], true, 512, JSON_THROW_ON_ERROR);
             } else {
-                $request["data"] = json_encode($request["data"]);
+                $request["data"] = json_encode($request["data"], JSON_THROW_ON_ERROR);
             }
 
             if (function_exists('json_last_error')) {
                 $json_error = json_last_error();
-                if ($json_error != JSON_ERROR_NONE) {
-                    throw new UnlimintException("JSON Error [{$json_error}] - Data: " . $request["data"]);
+                if ($json_error !== JSON_ERROR_NONE) {
+                    throw new UnlimintException("JSON Error [$json_error] - Data: " . $request["data"]);
                 }
             }
         } elseif ($form_content) {
@@ -110,9 +132,13 @@ class ULRestClient
 
 
     /**
+     * @param string $api_url
+     * @param array $request
+     * @return array|null
+     * @throws JsonException
      * @throws UnlimintException
      */
-    private static function exec($api_url, $request)
+    private static function exec(string $api_url, array $request): ?array
     {
         $response = null;
 
@@ -124,14 +150,14 @@ class ULRestClient
             throw new UnlimintException(curl_error($connect));
         }
 
-        if ($api_http_code != null && $api_result != null) {
+        if (!is_null($api_http_code) && !is_null($api_result)) {
             $response = [
                 "status" => $api_http_code,
-                "response" => json_decode($api_result, true),
+                "response" => json_decode($api_result, true, 512, JSON_THROW_ON_ERROR),
             ];
         }
 
-        if ($response != null && $response['status'] >= 400 && self::$check_loop == 0) {
+        if (!is_null($response) && $response['status'] >= 400 && self::$check_loop === 0) {
             self::processErrorResponse($api_url, $request, $response);
         }
 
@@ -153,7 +179,7 @@ class ULRestClient
 
                 $description = $response['response']['cause']['description'];
                 $code = $response['response']['cause']['code'];
-                if (isset($code) && isset($description)) {
+                if (isset($code, $description)) {
                     $message .= " - " . $code . ': ' . $description;
                 } elseif (is_array($response['response']['cause'])) {
 
@@ -169,65 +195,94 @@ class ULRestClient
         return $message;
     }
 
-    protected static function processErrorResponse($api_url, $request, $response)
+    /**
+     * @param $api_url
+     * @param $request
+     * @param $response
+     * @throws UnlimintException
+     */
+    protected static function processErrorResponse($api_url, $request, $response): void
     {
         try {
             self::$check_loop = 1;
             $message = self::prepareResponseMessage($response);
             $payloads = null;
             $endpoint = null;
-            $errors = [];
 
-            if ($request != null) {
-                if (isset($request["data"]) && $request["data"] != null) {
-                    $payloads = json_encode($request["data"]);
+            if (!is_null($request)) {
+                if (isset($request["data"]) && !is_null($request["data"])) {
+                    $payloads = json_encode($request["data"], JSON_THROW_ON_ERROR);
                 }
 
-                if (isset($request["uri"]) && $request["uri"] != null) {
+                if (isset($request["uri"]) && !is_null($request["uri"])) {
                     $endpoint = $request["uri"];
                 }
             }
 
-            $errors[] = [
+            self::sendErrorLog([
+                "api_url" => $api_url,
                 "endpoint" => $endpoint,
                 "message" => $message,
                 "payloads" => $payloads
-            ];
-
-            self::sendErrorLog($api_url);
+            ]);
         } catch (Exception $e) {
             throw new UnlimintException("error to call API LOGS" . $e);
         }
     }
 
-    private static function buildQuery($params)
+    /**
+     * @param array|null $params
+     * @return string
+     */
+    private static function buildQuery(?array $params): string
     {
+        $elements = [];
         if (function_exists("http_build_query")) {
-            return http_build_query($params, "", "&");
+            return http_build_query($params);
         }
 
         foreach ($params as $name => $value) {
-            $elements[] = "{$name}=" . urlencode($value);
+            $elements[] = "$name=" . urlencode($value);
         }
 
         return implode("&", $elements);
     }
 
-    public static function get($api_url, $request)
+    /**
+     * @param string $api_url
+     * @param ?array $request
+     * @return array|null
+     * @throws UnlimintException|JsonException
+     */
+    public static function get(string $api_url, ?array $request): ?array
     {
         $request["method"] = "GET";
 
         return self::exec($api_url, $request);
     }
 
-    public static function patch($api_url, $request)
+    /**
+     * @param string $api_url
+     * @param array|null $request
+     * @return array|null
+     * @throws JsonException
+     * @throws UnlimintException
+     */
+    public static function patch(string $api_url, ?array $request): ?array
     {
         $request["method"] = "PATCH";
 
         return self::exec($api_url, $request);
     }
 
-    public static function post($api_url, $request)
+    /**
+     * @param string $api_url
+     * @param array|null $request
+     * @return array|null
+     * @throws JsonException
+     * @throws UnlimintException
+     */
+    public static function post(string $api_url, ?array $request): ?array
     {
         $request["method"] = "POST";
 
@@ -238,21 +293,39 @@ class ULRestClient
         return self::exec($api_url, $request);
     }
 
-    public static function put($api_url, $request)
+    /**
+     * @param string $api_url
+     * @param array|null $request
+     * @return array|null
+     * @throws JsonException
+     * @throws UnlimintException
+     */
+    public static function put(string $api_url, ?array $request): ?array
     {
         $request["method"] = "PUT";
 
         return self::exec($api_url, $request);
     }
 
-    public static function delete($api_url, $request)
+    /**
+     * @param string $api_url
+     * @param array|null $request
+     * @return array|null
+     * @throws JsonException
+     * @throws UnlimintException
+     */
+    public static function delete(string $api_url, ?array $request): ?array
     {
         $request["method"] = "DELETE";
 
         return self::exec($api_url, $request);
     }
 
-    public static function sendErrorLog($errors)
+    /**
+     * @param array|string$errors
+     * @return bool
+     */
+    public static function sendErrorLog($errors): bool
     {
         if (is_array($errors)) {
             $errors = print_r($errors, true);

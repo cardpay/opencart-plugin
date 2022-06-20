@@ -11,22 +11,26 @@ class Unlimint
     private $client_id;
     private $client_secret;
     private bool $sandbox = false;
-    private string $api_url = '';
-    private $log;
-    private $db;
-    private $access_token;
+    private string $api_url;
+    private Log $log;
+    private DB $db;
 
-    public static function getInstance($prefix, $config): self
+    /**
+     * @param string $prefix
+     * @param Config $config
+     * @return static
+     * @throws UnlimintException
+     */
+    public static function getInstance(string $prefix, Config $config): self
     {
-        $terminal_code = $config->get('payment_ul_' . $prefix . '_terminal_code');
-        $access_token = $config->get('payment_ul_' . $prefix . '_callback_secret');
-        $access_pubkey = $config->get('payment_ul_' . $prefix . '_terminal_password');
-        $production = $config->get('payment_ul_' . $prefix . '_production');
-
-        return new self($terminal_code, $access_pubkey, $access_token, $production);
+        return new self(
+            $config->get('payment_ul_' . $prefix . '_terminal_code'),
+            $config->get('payment_ul_' . $prefix . '_terminal_password'),
+            $config->get('payment_ul_' . $prefix . '_production')
+        );
     }
 
-    public function setOrderData($order_info, $payment_info, $form_data)
+    public function setOrderData($order_info, $payment_info, $form_data): void
     {
         $sql = "SELECT transaction_id FROM " . DB_PREFIX . "ul_orders WHERE order_id = " . $order_info['order_id'] . " limit 1";
 
@@ -50,7 +54,7 @@ class Unlimint
         $this->db->query($query);
     }
 
-    public function completeOrderData($order_id, $new_amount, $new_payment_id)
+    public function completeOrderData($order_id, $new_amount, $new_payment_id): void
     {
         $this->db->query('UPDATE ' . DB_PREFIX . 'ul_orders 
         SET 
@@ -61,7 +65,7 @@ class Unlimint
         is_complete=0 AND order_id=' . $order_id);
     }
 
-    public function getOrderInfo($order_id)
+    public function getOrderInfo($order_id): array
     {
         $sql = 'SELECT * FROM ' . DB_PREFIX . 'ul_orders WHERE order_id = ' . $order_id . ' limit 1';
 
@@ -77,40 +81,39 @@ class Unlimint
     {
         $i = func_num_args();
 
-        if ($i !== 4) {
+        if ($i !== 3) {
             throw new UnlimintException("Invalid arguments. Use TERMINAL_CODE, TERMINAL_PASSWORD and PRODUCTION_MODE");
         }
 
         $this->client_id = func_get_arg(0);
         $this->client_secret = func_get_arg(1);
-        $this->access_token = func_get_arg(2);
 
-        $this->sandbox_mode(!func_get_arg(3));
+        $this->sandbox_mode(!func_get_arg(2));
         $this->api_url = $this->getApiUrl();
     }
 
-    public function setLog($log)
+    public function setLog($log): self
     {
         $this->log = $log;
 
         return $this;
     }
 
-    public function setDb($db)
+    public function setDb($db): self
     {
         $this->db = $db;
 
         return $this;
     }
 
-    public function writeLog($text)
+    public function writeLog($text): void
     {
         if (isset($this->log)) {
             $this->log->write($text);
         }
     }
 
-    public function sandbox_mode($enable = null)
+    public function sandbox_mode($enable = null): bool
     {
         if (!is_null($enable)) {
             $this->sandbox = $enable === true;
@@ -119,7 +122,7 @@ class Unlimint
         return $this->sandbox;
     }
 
-    public function getApiUrl()
+    public function getApiUrl(): string
     {
         $url = ($this->sandbox_mode()) ? 'https://sandbox.cardpay.com/api' : 'https://www.cardpay.com/api';
 
@@ -128,7 +131,7 @@ class Unlimint
 
     /**
      * Get Terminal Password for API use
-     * @throws UnlimintException
+     * @throws UnlimintException|JsonException
      */
     public function getAccessToken()
     {
@@ -146,7 +149,7 @@ class Unlimint
             ],
         ]);
 
-        if ($access_data["status"] != 200) {
+        if ((int)$access_data["status"] !== 200) {
             $this->writeLog(__FUNCTION__ . ' - Request Data: ' . print_r($app_client_values, true));
             $this->writeLog(__FUNCTION__ . ' - Response: ' . print_r($access_data, true));
 
@@ -162,12 +165,12 @@ class Unlimint
      * Get information for specific authorized payment
      * @param string id
      * @return array(json)
-     * @throws UnlimintException
+     * @throws UnlimintException|JsonException
      */
-    public function getAuthorizedPayment($id)
+    public function getAuthorizedPayment($id): array
     {
         $request = [
-            "uri" => "/authorized_payments/{$id}",
+            "uri" => "/authorized_payments/$id",
             "params" => [
                 "access_token" => $this->getAccessToken(),
             ],
@@ -180,9 +183,9 @@ class Unlimint
      * Create a payment
      * @param array $payment
      * @return array(json)
-     * @throws UnlimintException
+     * @throws UnlimintException|JsonException
      */
-    public function create_payment($payment)
+    public function create_payment(array $payment): array
     {
         $get_access_token = $this->getAccessToken();
 
@@ -194,7 +197,7 @@ class Unlimint
             "data" => $payment,
         ];
 
-        if (!$payment['payment_method'] == "BOLETO") {
+        if (!in_array($payment['payment_method'], ['BOLETO', 'PIX'])) {
             $paymentMasked = $payment;
             $paymentMasked['card_account'] = [
                 'card' => [
@@ -213,9 +216,9 @@ class Unlimint
     }
 
     /**
-     * @throws UnlimintException
+     * @throws UnlimintException|JsonException
      */
-    public function getPayment($payment_id)
+    public function getPayment($payment_id): ?array
     {
         $get_access_token = $this->getAccessToken();
 
@@ -236,17 +239,15 @@ class Unlimint
      * @param null $params
      * @param bool $authenticate
      * @return array|null
-     * @throws UnlimintException
+     * @throws UnlimintException|JsonException
      */
-    public function get($request_param, $params = null, $authenticate = true)
+    public function get($request_uri = '', $params = null, $authenticate = true): ?array
     {
-        if (is_string($request_param)) {
-            $request = [
-                "uri" => $request_param,
-                "params" => $params,
-                "authenticate" => $authenticate,
-            ];
-        }
+        $request = (!empty($request_uri)) ? [
+            "uri" => $request_uri,
+            "params" => $params,
+            "authenticate" => $authenticate,
+        ] : [];
 
         $request["params"] = isset($request["params"]) && is_array($request["params"]) ? $request["params"] : [];
         if (isset($authenticate) && $authenticate) {
@@ -262,9 +263,9 @@ class Unlimint
      * @param null $data
      * @param null $params
      * @return array|null
-     * @throws UnlimintException
+     * @throws UnlimintException|JsonException
      */
-    public function post($request, $data = null, $params = null)
+    public function post($request, $data = null, $params = null): ?array
     {
         $request = $this->getRequest($request, $data, $params);
 
@@ -277,9 +278,9 @@ class Unlimint
      * @param null $data
      * @param null $params
      * @return array|null
-     * @throws UnlimintException
+     * @throws UnlimintException|JsonException
      */
-    public function put($request, $data = null, $params = null)
+    public function put($request, $data = null, $params = null): ?array
     {
         $request = $this->getRequest($request, $data, $params);
 
@@ -291,9 +292,9 @@ class Unlimint
      * @param request
      * @param null $params
      * @return array|null
-     * @throws UnlimintException
+     * @throws UnlimintException|JsonException
      */
-    public function delete($request, $params = null)
+    public function delete($request, $params = null): ?array
     {
         if (is_string($request)) {
             $request = array(
@@ -314,10 +315,11 @@ class Unlimint
      * @param $request
      * @param $data
      * @param $params
-     * @return array|mixed
+     * @return mixed
+     * @throws JsonException
      * @throws UnlimintException
      */
-    private function getRequest($request, $data, $params)
+    private function getRequest($request, $data, $params): mixed
     {
         if (is_string($request)) {
             $request = [

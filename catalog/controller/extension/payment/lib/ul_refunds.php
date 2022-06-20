@@ -13,12 +13,12 @@ class ULRefunds
 
     public function getTotalOrderRefunds($order_id)
     {
-        $query = $this->db->query("SELECT SUM(amount) AS amount FROM " . DB_PREFIX . "ul_refunds WHERE order_id = {$order_id}");
+        $query = $this->db->query("SELECT SUM(amount) AS amount FROM " . DB_PREFIX . "ul_refunds WHERE order_id = $order_id");
 
         return (!empty($query->row) && !empty($query->row['amount'])) ? $query->row['amount'] : 0;
     }
 
-    public function logRefundedItems($order_id, $data)
+    public function logRefundedItems($order_id, $data): void
     {
         $reason = $data['reason'] ?? '';
         if (!empty($data['products'])) {
@@ -50,7 +50,7 @@ class ULRefunds
         $this->writeReturnedItem($order_id, 0, 'sum', $data['refund'], 0, $reason);
     }
 
-    public function saveRefund($order_id, $payment)
+    public function saveRefund($order_id, $payment): void
     {
         $this->db->query(
             'INSERT INTO ' . DB_PREFIX . 'ul_refunds SET 
@@ -60,7 +60,7 @@ class ULRefunds
         );
     }
 
-    protected function writeReturnedItem($order_id, $item_id, $item_type, $amount, $quantity, $comment)
+    protected function writeReturnedItem($order_id, $item_id, $item_type, $amount, $quantity, $comment): void
     {
         $sql = sprintf(
             'INSERT INTO ' . DB_PREFIX . 'ul_refund_history 
@@ -76,7 +76,12 @@ class ULRefunds
         $this->db->query($sql);
     }
 
-    public function canRefund($order, $order_info = null)
+    /**
+     * @param array $order
+     * @param array|null $order_info
+     * @return bool
+     */
+    public function canRefund(array $order, ?array $order_info = null): bool
     {
         if ((int)$order['order_status_id'] !== self::OC_COMPLETE_STATUS_ID) {
             return false;

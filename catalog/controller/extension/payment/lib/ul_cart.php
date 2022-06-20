@@ -1,11 +1,14 @@
 <?php
 
+use Cart\Customer;
+use Cart\Cart;
+
 class ULCart
 {
     protected DB $db;
     protected Session $session;
-    protected \Cart\Customer $customer;
-    protected \Cart\Cart $cart;
+    protected Customer $customer;
+    protected Cart $cart;
 
     public function clearOldCartBackups(): void
     {
@@ -68,6 +71,9 @@ class ULCart
         $this->cart->clear();
     }
 
+    /**
+     * @throws JsonException
+     */
     public function restoreOrderedProducts(): void
     {
         if ($this->cart->hasProducts()) {
@@ -121,22 +127,22 @@ class ULCart
     }
 
     /**
-     * @param \Cart\Customer $customer
+     * @param Customer $customer
      *
      * @return self
      */
-    public function setCustomer(\Cart\Customer $customer): self
+    public function setCustomer(Customer $customer): self
     {
         $this->customer = $customer;
         return $this;
     }
 
     /**
-     * @param \Cart\Cart $cart
+     * @param Cart $cart
      *
      * @return self
      */
-    public function setCart(\Cart\Cart $cart): self
+    public function setCart(Cart $cart): self
     {
         $this->cart = $cart;
         return $this;
