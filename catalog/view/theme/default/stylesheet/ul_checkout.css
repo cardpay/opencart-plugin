@@ -815,8 +815,8 @@ body {
 
 #ul-box-form {
     padding: 15px 10px;
-    margin: 30px auto;
-    width: 420px;
+    width: auto;
+    max-width:420px;
     background-color: #fff;
     overflow: auto;
     border-radius: 5px;
@@ -1146,11 +1146,8 @@ body {
     padding-right: 15px !important;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 200px) {
     .ul-col-md-6 {
         width: 100%;
-    }
-    #ul-box-form {
-        width:auto;
     }
 }

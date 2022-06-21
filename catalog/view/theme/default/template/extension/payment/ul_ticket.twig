@@ -3,80 +3,72 @@
 <input type="hidden" id="paymentType" value="ticket"/>
 <input type="hidden" id="contryType" value="{{ countryType }}"/>
 
+
+<div class="clearfix"></div>
 <div id="spinner">
-    <form method="post" onsubmit="return validateUlCpf('docnumber', 'cpf-error')" id="ul-form" name="ul-form"
-          action="{{ actionForm }}">
-        <div class="panel-body" id="checkout-payment">
-            <div id="form-ticket" class="form-row">
-                <div id="formULB">
-                    <div class="form-row">
-                        <div class="col-md-12">
-                            <div>
-                                <div>
-                                    <label for='docnumber' id='ul-cpf-label'
-                                           class='ul-label-form title-cpf'>CPF
-                                        <em>*</em></label>
-                                </div>
-                                <input type='text'
-                                       onkeyup="formatUlBoletoCpf(this.id);" onfocusout="validateUlInput();"
-                                       class='ul-form-control'
-                                       id='docnumber' data-checkout="docNumber" name='unlimint_custom[docnumber]'
-                                       autocomplete='off' maxlength='14'
-                                       placeholder='XXX.XXX.XXX-XX'>
-                            </div>
-                            <span class='ul-error' data-main='#ul-cpf-ticket'
-                                  id='cpf-error'>{{ error_invalid_cpf }}</span>
-                            <span class='ul-error' data-main='#ul-cpf-ticket'
-                                  id='cpf-error-1'>{{ error_empty_cpf }}</span><br/>
-                        </div>
+    <div id="ul-box-form">
+        <div class="ul-box-inputs ul-line">
+            <div class="ul-box-inputs ul-col-50">
+                <div class="ul-title-checkout">{{ payment_title }}</div>
+            </div>
+        </div>
+        <div id="unlimint-form">
+            <form method="post" onsubmit="return validateUlCpf('docnumber', 'cpf-error')" id="ul-form" name="ul-form"
+                  action="{{ actionForm }}">
+
+                <div class="ul-box-inputs ul-col-100">
+                    <label for='docnumber' id='ul-cpf-label'
+                           class='ul-label-form title-cpf'>CPF
+                        <em>*</em></label>
+                    <input type='text'
+                           onkeyup="formatUlBoletoCpf(this.id);" onfocusout="validateUlInput();"
+                           class='ul-form-control'
+                           id='docnumber' data-checkout="docNumber" name='unlimint_custom[docnumber]'
+                           autocomplete='off' maxlength='14'
+                           placeholder='XXX.XXX.XXX-XX'>
+                    <span class='ul-error' data-main='#ul-cpf-ticket'
+                          id='cpf-error'>{{ error_invalid_cpf }}</span>
+                    <span class='ul-error' data-main='#ul-cpf-ticket'
+                          id='cpf-error-1'>{{ error_empty_cpf }}</span>
+                </div>
+                {% if payment_postcode == '' %}
+                    <div class="ul-box-inputs ul-col-100">
+                        <label class="ul-label-form title-cpf"
+                               for="input_payment_postcode">{{ labels.label_post_code }} <em>*</em></label>
+                        <input type="text" name="postcode" data-checkout="postcode" value=""
+                               placeholder="{{ labels.label_post_code }}" minlength="2" maxlength="10"
+                               id="input_payment_postcode" class="ul-form-control"
+                               onfocusout="validatePostCodeInput('boleto');">
+                        <span class='ul-error' data-main='#ul-post-code'
+                              id='post-code'>{{ errors.error_invalid_post_code }}</span>
                     </div>
-                    {% if payment_postcode == '' %}
-                    <br>
-                    <div class="form-row">
-                        <div class="col-md-12">
-                            <div>
-                                <div>
-                                    <label class="ul-label-form title-cpf"
-                                           for="input_payment_postcode">{{ labels.label_post_code }} <em>*</em></label>
-                                </div>
-                                <input type="text" name="postcode" data-checkout="postcode" value=""
-                                       placeholder="{{ labels.label_post_code }}" minlength="2" maxlength="10"
-                                       id="input_payment_postcode" class="ul-form-control"
-                                       onfocusout="validatePostCodeInput('boleto');">
-                            </div>
-                            <span class='ul-error' data-main='#ul-post-code'
-                                  id='post-code'>{{ errors.error_invalid_post_code }}</span><br/>
-                        </div>
-                        {% endif %}
+                {% endif %}
+                <div class="ul-box-inputs ul-line">
+                    <div class="ul-box-inputs ul-col-50">
+                        <img alt="{{ action }}" src="admin/view/image/payment/{{ action }}/boleto.png" width="53"
+                             height="35"/>
                     </div>
-                    <br>
-                    <div class="form-row">
-                        <div class="col-md-12">
-                    <img src="admin/view/image/payment/{{ action }}/boleto.png" width="53" height="35" alt="Boleto">
-                        </div>
+                </div>
+                <div class="ul-box-inputs ul-line">
+                    <div class="ul-box-inputs ul-col-50">
+                        <input type="submit" id="btnSubmit" name="btnSubmit" value={{ labels.payment_button }}>
                     </div>
-                    <div class="clearfix"></div>
-                    <br>
-                    <br>
-                    <div class="form-row">
-                        <div class="col-md-12">
-                            <input type="hidden" id="payment_method_id"/>
-                            <input type="submit" class="btn" id="btnSubmit" name="btnSubmit"
-                                   value="{{ labels.payment_button }}"/>
+
+                    <div class="ul-box-inputs ul-col-25">
+                        <div id="ul-box-loading">
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
-    </form>
-
-    {{ '<script defer src="./catalog/view/javascript/ul/mask.js"></script>' }}
+    </div>
+</div>
+{{ '<script defer src="./catalog/view/javascript/ul/mask.js"></script>' }}
     {{ '<script defer src="./catalog/view/javascript/ul/ticket/ul_ticket_checkout.js"></script>' }}
     {{ '<script defer src="./catalog/view/javascript/ul/ticket/ul_lib_ticket.js"></script>' }}
     {{ '<script defer src="./catalog/view/javascript/ul/ul_checkout.js"></script>' }}
     {{ '<script defer src="./catalog/view/javascript/ul/pix/ul_pix_checkout.js"></script>' }}
 
-</div>
 <script type='text/javascript'>
     function validateUlInput() {
         setTimeout(validateUlBoletoCpf(), 1);
