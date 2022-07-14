@@ -26,7 +26,7 @@ require_once __DIR__ . "/ul_pix.php";
  * @property Language $language
  * @property ModelCheckoutOrder $model_order
  * @property ModelCheckoutOrder $model_checkout_order
- * @property ULOpencartUtil $ul_util
+ * @property ULUtil $ul_util
  */
 class ControllerExtensionPaymentULGeneral extends Controller
 {
@@ -72,13 +72,13 @@ class ControllerExtensionPaymentULGeneral extends Controller
     }
 
     /**
-     * @return ULOpencartUtil
+     * @return ULUtil
      * @throws UnlimintException
      */
-    public function get_instance_ul_util(): ULOpencartUtil
+    public function get_instance_ul_util(): ULUtil
     {
         if (is_null($this->ul_util)) {
-            $this->ul_util = (new ULOpencartUtil())
+            $this->ul_util = (new ULUtil())
                 ->setConfig($this->config)
                 ->setUl($this->get_instance_ul())
                 ->setLog($this->log);

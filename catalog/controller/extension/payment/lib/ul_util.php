@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/unlimint_order_info.php';
 
-class ULOpencartUtil
+class ULUtil
 {
     public const TRANSACTION_ID_PREFIX = '- Payment ID:';
 
@@ -78,7 +78,6 @@ class ULOpencartUtil
         }
 
         $status_id = $this->config->get('payment_ul_' . $prefix . '_' . $status);
-
         if (!empty($status_id)) {
             return $status_id;
         }
@@ -140,19 +139,18 @@ class ULOpencartUtil
             $order_info['is_complete'] ||
             (
                 (int)$received_transaction_id === (int)$order_info['transaction_id'] &&
-                (float)$received_amount === (float)$order_info['initial_amount'])
+                (float)$received_amount === (float)$order_info['initial_amount']
+            )
         ) {
             return;
         }
+
         $this->ul->completeOrderData($order_id, $received_amount, $received_transaction_id);
     }
 
     public function isFinalRefund($payment): bool
     {
-        return isset(
-                $payment['payment_data']['remaining_amount']) &&
-            (float)($payment['payment_data']['remaining_amount'] === 0.0
-            );
+        return isset($payment['payment_data']['remaining_amount']) && (!$payment['payment_data']['remaining_amount'] > 0);
     }
 
     /**
@@ -180,7 +178,9 @@ class ULOpencartUtil
             $status_id = $this->getStatusId('REFUNDED', $prefix);
             $model->addOrderHistory($order_id, $status_id, 'Order refunded');
         }
+
         $this->saveRefund($order_id, $callback_data, $model);
+
         return true;
     }
 
@@ -193,9 +193,9 @@ class ULOpencartUtil
      * @throws JsonException
      */
     public function updateOrder(
-        array $callback_data,
-        Proxy $model,
-        DB $db,
+        array  $callback_data,
+        Proxy  $model,
+        DB     $db,
         string $prefix): bool
     {
         $this->ul->writeLog('Callback: ' . json_encode($callback_data, JSON_THROW_ON_ERROR));
@@ -280,7 +280,7 @@ class ULOpencartUtil
         $id = uniqid('', true);
         $customerId = uniqid('', true);
 
-        $total_price = round($order_info['total'] * $order_info['currency_value'],2);
+        $total_price = round($order_info['total'] * $order_info['currency_value'], 2);
         $notification_url = $order_info['store_url'] . 'index.php?route=extension/payment/ul_' . $prefix . '/callback';
 
         $data = [
@@ -310,7 +310,7 @@ class ULOpencartUtil
         ];
 
         $shipping_address = [
-            'country' => 'BR',
+            'country' => $order_info['shipping_iso_code_2'],
             'state' => $order_info['payment_zone'],
             'city' => $order_info['payment_city'],
             'phone' => $order_info['telephone'],

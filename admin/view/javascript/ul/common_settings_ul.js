@@ -38,13 +38,13 @@ const validateAltMethodForm = function (prefix, e) {
 }
 
 function buttonSave() {
-    const btn_save = document.getElementById('btn_save');
+    const btnSave = document.getElementById('btn_save');
 
     $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
         localStorage.setItem('activeTab', $(e.target).attr('href'));
     });
 
-    btn_save.onclick = saveConfigs;
+    btnSave.onclick = saveConfigs;
 
     const activeTab = localStorage.getItem('activeTab');
     if (activeTab) {

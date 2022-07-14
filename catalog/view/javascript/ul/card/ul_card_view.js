@@ -7,8 +7,8 @@
 function getMessage(data) {
     const {div_error, btn_dismiss, url_message} = extracted(data, 'ul_custom');
     $.get(url_message, function success(rtn) {
-        const payment_return = JSON.parse(rtn);
-        const text = document.createTextNode(payment_return["message"]);
+        const paymentReturn = JSON.parse(rtn);
+        const text = document.createTextNode(paymentReturn["message"]);
         div_error.innerHTML = "";
         div_error.appendChild(text);
         div_error.appendChild(btn_dismiss);
@@ -21,10 +21,10 @@ function buildAmount(amount) {
 }
 
 function getCardIssuers() {
-    const public_key = document.getElementById("public_key").value;
-    const payment_method_id = document.getElementById('paymentType').value;
-    Unlimint.setPublishableKey(public_key);
-    Unlimint.getIssuers(payment_method_id, function (httpStatus, dt) {
+    const publicKey = document.getElementById("public_key").value;
+    const paymentMethodId = document.getElementById('paymentType').value;
+    Unlimint.setPublishableKey(publicKey);
+    Unlimint.getIssuers(paymentMethodId, function (httpStatus, dt) {
         let option;
         const select = document.getElementById('issuer');
         let i = dt.length;
@@ -64,18 +64,18 @@ function cardTypeEventListener() {
     }
 }
 
-function pay(payment, url_backend) {
-    const card_number = document.getElementById('cc_num');
-    payment.issuer_id = card_number.hasAttribute("data-card-issuer") ? card_number.getAttribute("data-card-issuer") : payment.issuer_id;
+function pay(payment, urlBackend) {
+    const cardNumber = document.getElementById('cc_num');
+    payment.issuer_id = cardNumber.hasAttribute("data-card-issuer") ? cardNumber.getAttribute("data-card-issuer") : payment.issuer_id;
 
-    payment.payment_method_id = card_number.hasAttribute("data-card-payment-method-id") ? card_number.getAttribute("data-card-payment-method-id") : payment.payment_method_id;
+    payment.payment_method_id = cardNumber.hasAttribute("data-card-payment-method-id") ? cardNumber.getAttribute("data-card-payment-method-id") : payment.payment_method_id;
 
     $.ajax({
         type: "POST",
-        url: url_backend,
+        url: urlBackend,
         data: payment,
         success: function success(data) {
-            const response_payment = JSON.parse(data);
+            const responsePayment = JSON.parse(data);
             ModuleAnalytics.setToken(response.token);
             ModuleAnalytics.setPaymentId(response.paymentId);
             ModuleAnalytics.setPaymentType(response.paymentType);
@@ -83,28 +83,29 @@ function pay(payment, url_backend) {
             ModuleAnalytics.put();
 
             document.getElementById('ulr-form').style = 'margin-left: 22%';
-            const acceptable_status = ["approved", "in_process"];
-            if (acceptable_status.indexOf(response_payment.status) > -1) {
-                const url_site = window.location.href.split('index.php')[0];
-                let location = url_site.slice(-1) === '/' ? url_site : url_site + '/';
+            const acceptableStatus = ["approved", "in_process"];
+            if (acceptableStatus.indexOf(responsePayment.status) > -1) {
+                const urlSite = window.location.href.split('index.php')[0];
+                let location = urlSite.slice(-1) === '/' ? urlSite : urlSite + '/';
                 location += 'index.php?route=checkout/success';
                 localStorage.removeItem('payment');
                 window.location.href = location;
             } else {
-                delete response_payment.request_type;
-                getMessage(response_payment);
+                delete responsePayment.request_type;
+                getMessage(responsePayment);
             }
         }
     });
 }
 
 
-const check_form = {
+const checkForm = {
     check: function (obj) {
         let checked = true;
         const f = this;
-        $('#ul-form').find('.ul-error').hide();
-        $('#ul-form').find('[data-checkout]').each(function (i, item) {
+        const ufForm = $('#ul-form');
+        ufForm.find('.ul-error').hide();
+        ufForm.find('[data-checkout]').each(function (i, item) {
             checked = f.processInput($(item).data('checkout'), $(item).val(), checked);
         });
         return checked;
@@ -246,9 +247,9 @@ const check_form = {
 };
 
 function ul_check_form(obj) {
-    return check_form.check(obj);
+    return checkForm.check(obj);
 }
 
 function ul_check_input(iType, val) {
-    return check_form.processInput(iType, val, true)
+    return checkForm.processInput(iType, val, true)
 }

@@ -13,6 +13,7 @@ class ControllerExtensionPaymentULPix extends ControllerExtensionPaymentULAltGat
     public function index(): string
     {
         $data = $this->getData(self::EXTENSION_PAYMENT_UL_PIX);
+        $data['payment_title'] = $this->config->get('payment_ul_pix_payment_title');
 
         if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/' . self::EXTENSION_PAYMENT_UL_PIX)) {
             return $this->load->view($this->config->get('config_template') . '/template/' . self::EXTENSION_PAYMENT_UL_PIX, $data);

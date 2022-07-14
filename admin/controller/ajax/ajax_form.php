@@ -39,6 +39,9 @@ class ControllerAjaxAjaxForm extends Controller
                 ->setDb($this->db);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function ajaxResponse($result, $message = '')
     {
         if (empty($this->response)) {

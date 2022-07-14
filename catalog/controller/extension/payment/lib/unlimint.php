@@ -303,12 +303,7 @@ class Unlimint
             );
         }
 
-        $request["params"] = isset($request["params"]) && is_array($request["params"]) ? $request["params"] : [];
-        if (!isset($request["authenticate"]) || $request["authenticate"] !== false) {
-            $request["params"]["access_token"] = $this->getAccessToken();
-        }
-
-        return ULRestClient::delete($this->api_url, $request);
+        return ULRestClient::delete($this->api_url, $this->getRequestAccessToken($request));
     }
 
     /**
@@ -319,7 +314,7 @@ class Unlimint
      * @throws JsonException
      * @throws UnlimintException
      */
-    private function getRequest($request, $data, $params): mixed
+    private function getRequest($request, $data, $params)
     {
         if (is_string($request)) {
             $request = [
@@ -329,6 +324,17 @@ class Unlimint
             ];
         }
 
+        return $this->getRequestAccessToken($request);
+    }
+
+    /**
+     * @param $request
+     * @return mixed
+     * @throws JsonException
+     * @throws UnlimintException
+     */
+    protected function getRequestAccessToken($request)
+    {
         $request["params"] = isset($request["params"]) && is_array($request["params"]) ? $request["params"] : [];
         if (!isset($request["authenticate"]) || $request["authenticate"] !== false) {
             $request["params"]["access_token"] = $this->getAccessToken();

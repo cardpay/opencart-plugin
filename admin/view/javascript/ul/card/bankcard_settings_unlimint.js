@@ -4,9 +4,9 @@ const ulCapturePayment = function () {
 
 const ulRefundPayment = function () {
     let returns = 0;
-    const store_id = jQuery('#ul-store-id').val();
-    let products = [];
-    let totals = [];
+    const storeId = jQuery('#ul-store-id').val();
+    const products = [];
+    const totals = [];
 
     jQuery('.ul-refund-val').each(function (i, item) {
         returns = returns + ((jQuery(item).val() > 0) ? 1 : 0);
@@ -15,24 +15,24 @@ const ulRefundPayment = function () {
     if (jQuery('#ul-restock').is(":checked") && (returns > 0)) {
         jQuery('.ul-product-qty').each(function (i, item) {
             const id = jQuery(item).data('id');
-            const amount_id = 'ul-product-' + id + '-total'
-            let product = {
+            const amountId = 'ul-product-' + id + '-total';
+            const product = {
                 product_id: id,
                 quantity: jQuery(item).val(),
-                amount: jQuery('#' + amount_id).val(),
+                amount: jQuery('#' + amountId).val(),
             }
             if ((product.quantity > 0) || (product.amount > 0)) {
-                products.push(product)
+                products.push(product);
             }
         })
         jQuery('.ul-total-total').each(function (i, item) {
             const id = jQuery(item).data('id');
-            let total = {
+            const total = {
                 total_id: id,
                 amount: jQuery(item).val(),
             }
             if (total.amount > 0) {
-                totals.push(total)
+                totals.push(total);
             }
         })
 
@@ -44,8 +44,8 @@ const ulRefundPayment = function () {
         return;
     }
 
-    let data = {
-        store_id: store_id,
+    const data = {
+        store_id: storeId,
         products: products,
         totals: totals,
         refund: refund,
@@ -63,8 +63,8 @@ const ulCancelPayment = function () {
     ulProcessPayment('cancel', BANKCARD_ALERT_TRANSLATIONS['CANCELLED'], BANKCARD_ALERT_TRANSLATIONS['CANCEL']);
 }
 
-const ulProcessPayment = function (action, status_message, action_message, data) {
-    if (!window.confirm(BANKCARD_ALERT_TRANSLATIONS['ARE_YOU_SURE'] + ' ' + action_message + ' ' + BANKCARD_ALERT_TRANSLATIONS['THE_PAYMENT'])) {
+const ulProcessPayment = function (action, statusMessage, actionMessage, data) {
+    if (!window.confirm(BANKCARD_ALERT_TRANSLATIONS['ARE_YOU_SURE'] + ' ' + actionMessage + ' ' + BANKCARD_ALERT_TRANSLATIONS['THE_PAYMENT'])) {
         return;
     }
 
@@ -81,18 +81,18 @@ const ulProcessPayment = function (action, status_message, action_message, data)
         type: 'POST',
         success: function (responseParsed) {
             const alertPaymentWasNot = BANKCARD_ALERT_TRANSLATIONS['PAYMENT_WAS_NOT'];
-            const errorMessage = alertPaymentWasNot + ' ' + status_message;
+            const errorMessage = alertPaymentWasNot + ' ' + statusMessage;
             if (!responseParsed) {
                 alert(errorMessage);
                 return;
             }
 
             if (responseParsed.success) {
-                alert(BANKCARD_ALERT_TRANSLATIONS['PAYMENT_HAS_BEEN'] + ' ' + status_message + ' ' + BANKCARD_ALERT_TRANSLATIONS['SUCCESSFULLY']);
+                alert(BANKCARD_ALERT_TRANSLATIONS['PAYMENT_HAS_BEEN'] + ' ' + statusMessage + ' ' + BANKCARD_ALERT_TRANSLATIONS['SUCCESSFULLY']);
                 location.reload();
             } else {
                 if (responseParsed.data && responseParsed.data.error_message) {
-                    alert(alertPaymentWasNot + ' ' + status_message + ': ' + responseParsed.data.error_message);
+                    alert(alertPaymentWasNot + ' ' + statusMessage + ': ' + responseParsed.data.error_message);
                 } else {
                     alert(errorMessage);
                 }

@@ -40,40 +40,40 @@ function customersAndCardsPay(status, response) {
     localStorage.setItem('payment', tries);
     const spinner = new Spinner().spin(document.getElementById('spinner'));
     const lbls = document.getElementsByClassName('text-right');
-    let url_site = window.location.href.split('index.php')[0];
-    let url_backend = url_site.slice(-1) === '/' ? url_site : url_site + '/';
-    url_backend += 'index.php?route=extension/payment/ul_card/paymentCustomersAndCards/';
-    const page_amount = lbls[lbls.length - 1].textContent.split('$')[1];
+    let urlSite = window.location.href.split('index.php')[0];
+    let urlBackend = urlSite.slice(-1) === '/' ? urlSite : urlSite + '/';
+    urlBackend += 'index.php?route=extension/payment/ul_card/paymentCustomersAndCards/';
+    const pageAmount = lbls[lbls.length - 1].textContent.split('$')[1];
     const payment = {
         token: response.id,
-        transaction_amount: buildAmount(page_amount),
+        transaction_amount: buildAmount(pageAmount),
         installments: document.getElementById('installments_cc').value
     };
 
     $.ajax({
         type: "POST",
-        url: url_backend,
+        url: urlBackend,
         data: payment,
         success: function success(data) {
-            const response_payment = JSON.parse(data);
-            const acceptable_status = ["approved", "in_process"];
-            if (acceptable_status.indexOf(response_payment.status) > -1) {
+            const responsePayment = JSON.parse(data);
+            const acceptableStatus = ["approved", "in_process"];
+            if (acceptableStatus.indexOf(responsePayment.status) > -1) {
                 console.info("====ModuleAnalytics enviar=====");
-                ModuleAnalytics.setToken(response_payment.token);
-                ModuleAnalytics.setPaymentId(response_payment.paymentId);
-                ModuleAnalytics.setPaymentType(response_payment.paymentType);
-                ModuleAnalytics.setCheckoutType(response_payment.checkoutType);
+                ModuleAnalytics.setToken(responsePayment.token);
+                ModuleAnalytics.setPaymentId(responsePayment.paymentId);
+                ModuleAnalytics.setPaymentType(responsePayment.paymentType);
+                ModuleAnalytics.setCheckoutType(responsePayment.checkoutType);
                 console.info("====ModuleAnalytics=====");
                 ModuleAnalytics.put();
 
-                url_site = window.location.href.split('index.php')[0];
-                let location = url_site.slice(-1) === '/' ? url_site : url_site + '/';
+                urlSite = window.location.href.split('index.php')[0];
+                let location = urlSite.slice(-1) === '/' ? urlSite : urlSite + '/';
                 location += 'index.php?route=checkout/success';
                 localStorage.removeItem('payment');
                 window.location.href = location;
             } else {
-                delete response_payment.request_type;
-                getMessage(response_payment);
+                delete responsePayment.request_type;
+                getMessage(responsePayment);
             }
             spinner.stop();
         }
@@ -81,15 +81,15 @@ function customersAndCardsPay(status, response) {
 }
 
 function customersAndCardsGetInstallments() {
-    const public_key = document.getElementById("public_key").value;
-    const cc_num = document.getElementById('cc_num_cc');
-    const bin = cc_num.options[cc_num.selectedIndex].getAttribute('first_six_digits');
+    const publicKey = document.getElementById("public_key").value;
+    const ccNum = document.getElementById('cc_num_cc');
+    const bin = ccNum.options[ccNum.selectedIndex].getAttribute('first_six_digits');
     const lbls = document.getElementsByClassName('text-right');
-    const string_amount = lbls[lbls.length - 1].textContent.split('$')[1];
-    const amount = buildAmount(string_amount);
+    const stringAmount = lbls[lbls.length - 1].textContent.split('$')[1];
+    const amount = buildAmount(stringAmount);
     const config = {"bin": bin, "amount": amount};
 
-    Unlimint.setPublishableKey(public_key);
+    Unlimint.setPublishableKey(publicKey);
 
     Unlimint.getInstallments(config, function (httpStatus, data) {
         if (httpStatus === 200) {

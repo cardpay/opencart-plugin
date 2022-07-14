@@ -13,6 +13,7 @@ class ControllerExtensionPaymentULTicket extends ControllerExtensionPaymentULAlt
     public function index(): string
     {
         $data = $this->getData(self::EXTENSION_PAYMENT_UL_TICKET);
+        $data['payment_title'] = $this->config->get('payment_ul_ticket_payment_title');
 
         if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/' . self::EXTENSION_PAYMENT_UL_TICKET)) {
             return $this->load->view($this->config->get('config_template') . '/template/' . self::EXTENSION_PAYMENT_UL_TICKET, $data);

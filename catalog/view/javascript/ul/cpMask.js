@@ -1,9 +1,9 @@
 function ulProcessValue(o,f)
 {
-    const v_obj = o
-    const value = f(v_obj.value)
+    const vObj = o
+    const value = f(vObj.value)
     setTimeout(function(){
-        v_obj.value = value;
+        vObj.value = value;
     })
 
 }
