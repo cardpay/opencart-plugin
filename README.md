@@ -67,7 +67,7 @@ Installation process explains how to install the OpenCart plugin:
 2. Go to the required root directory.
 3. Upload the plugin folder to the root directory. As a result, the required plugin directory should be presented.
 4. Open Extension Installer > Installer tab and installation of OpenCart plugin can be done by clicking on the Upload button.
-   **![](readme_images/opencart_install.png)**
+   **![](opencart 4/readme_images/opencart_install.png)**
    **Unlimit OpenCart** plugin was successfully installed and enabled.
    <a name="configuration"></a>
 ## Configuration
@@ -77,7 +77,7 @@ This process explains how to set up and configure the **OpenCart plugin** to acc
 Begin with the following basic settings:
 1. Log in to Admin panel of the **OpenCart plugin** (using admin credentials).
 2. Navigate to **Extensions** > **Extensions** > **Payments** (payment methods settings).
-   **![](readme_images/opencart_basic_settings.png)**
+   **![](opencart 4/readme_images/opencart_basic_settings.png)**
 3. To enable payment methods in the **OpenCart** plugin:
     1. Credit card
     2. Boleto
@@ -96,7 +96,7 @@ First, access the methods you want to enable via Unlimit support (it's a part of
 #### Credit Card
 To enable payments via Credit Card complete the following steps:
 1. Open the payment method settings by clicking on **Action** > **Edit**.
-   **![](readme_images/opencart_credit_card.png)**
+   **![](opencart 4/readme_images/opencart_credit_card.png)**
 2. Configure settings of the Credit card payment method:
 - Set **Enabled** to **Yes** (by default it's disabled).
 - **API access mode:**
@@ -127,7 +127,7 @@ To enable payments via Credit Card complete the following steps:
 #### Boleto
 To enable payments via Boleto complete the following steps:
 1. Open the payment method settings by clicking on **Action** > **Edit**.
-   **![](readme_images/opencart_Boleto.png)**
+   **![](opencart 4/readme_images/opencart_Boleto.png)**
 2. Configure settings of the Boleto  payment method:
 - Set **Enabled** to **Yes** (by default it's disabled).
 - Set **Terminal code**, **Terminal password**, and **Callback secret** values - For this payment method, it should be merchant credentials in Unlimit API v3 (how to obtain credentials - see [here](https://www.unlimit.com/integration/)).
@@ -140,7 +140,7 @@ To enable payments via Boleto complete the following steps:
 #### Google Pay
 To enable payments via Google Pay complete the following steps:
 1. Open the payment method settings by clicking on **Action** > **Edit**.
-   **![](readme_images/opencart_Google_Pay.png)**
+   **![](opencart 4/readme_images/opencart_Google_Pay.png)**
 3. Configure settings of the Google Pay  payment method:
 - Set **Enabled** to **Yes** (by default it's disabled).
 - Set **Terminal code**, **Terminal password**, and **Callback secret** values - For this payment method, it should be merchant credentials in Unlimit API v3 (how to obtain credentials - see [here](https://www.unlimit.com/integration/)).
@@ -155,7 +155,7 @@ To enable payments via Google Pay complete the following steps:
 #### MB WAY
 To enable payments via MB WAY complete the following steps:
 1. Open the payment method settings by clicking on **Action** > **Edit**.
-   **![](readme_images/opencart_MB_Way.png)**
+   **![](opencart 4/readme_images/opencart_MB_Way.png)**
 2. Configure settings of the MB WAY  payment method:
 - Set **Enabled** to **Yes** (by default it's disabled).
 - **API access mode:**
@@ -171,7 +171,7 @@ To enable payments via MB WAY complete the following steps:
 #### Multibanco
 To enable payments via Multibanco complete the following steps:
 1. Open the payment method settings by clicking on **Action** > **Edit**.
-   **![](readme_images/opencart_Multibanco.png)**
+   **![](opencart 4/readme_images/opencart_Multibanco.png)**
 1. Configure settings of the Multibanco payment method:
 - Set **Enabled** to **Yes** (by default it's disabled).
 - **API access mode:**
@@ -187,7 +187,7 @@ To enable payments via Multibanco complete the following steps:
 #### PayPal
 To enable payments via PayPal complete the following steps:
 1. Open the payment method settings by clicking on **Action** > **Edit**.
-   **![](readme_images/opencart_PayPal.png)**
+   **![](opencart 4/readme_images/opencart_PayPal.png)**
 2. Configure settings of the PayPal payment method:
 - Set **Enabled** to **Yes** (by default it's disabled).
 - **API access mode:**
@@ -203,7 +203,7 @@ To enable payments via PayPal complete the following steps:
 #### Pix
 To enable payments via Pix complete the following steps:
 1. Open the payment method settings by clicking on **Action** > **Edit**.
-   **![](readme_images/opencart_Pix.png)**
+   **![](opencart 4/readme_images/opencart_Pix.png)**
 2. Configure settings of the Pix payment method
 - Set **Enabled** to **Yes** (by default it's disabled).
 - Set **Terminal code**, **Terminal password**, and **Callback secret** values - For this payment method, it should be merchant credentials in Unlimit APIv3 (how to obtain credentials - see [here](https://www.unlimit.com/integration/))
@@ -216,7 +216,7 @@ To enable payments via Pix complete the following steps:
 #### SEPA Instant
 To enable payments via SEPA Instant complete the following steps:
 1. Open the payment method settings by clicking on **Action** > **Edit**.
-   **![](readme_images/opencart_SEPA_Instant.png)**
+   **![](opencart 4/readme_images/opencart_SEPA_Instant.png)**
 2. Configure settings of the SEPA Instant payment method:
 - Set **Enabled** to **Yes** (by default it's disabled).
 - **API access mode:**
@@ -233,7 +233,7 @@ To enable payments via SEPA Instant complete the following steps:
 To enable payments via SPEI complete the following steps:
 
 1. Open the payment method settings by clicking on **Action** > **Edit**.
-   **![](readme_images/opencart_SPEI.png)**
+   **![](opencart 4/readme_images/opencart_SPEI.png)**
 2. Configure settings of the SPEI payment method:
 - Set **Enabled** to **Yes** (by default it's disabled).
 - **API access mode:**
@@ -278,7 +278,7 @@ Cancellation (void) / capture of the payment only works for **Credit card** paym
 1. To capture a preauthorized payment, is needed to go to Sales > Orders and in the action column, click View for the order that is needed.
 2. Edit the quantity of items if needed in the **Item** block (change the quantity of the items and **complete order partially**).
 3. Then, click the **Capture** **payment** button.Capture payment button is available only if the payment status is Authorized and the order status is Processing.
-   **![](readme_images/opencart_Capture_button.png)**
+   **![](opencart 4/readme_images/opencart_Capture_button.png)**
 4. To confirm the order capture, click OK button in the pop-up window that appears.
 5. After confirming the need to capture the order, the order status will change to Complete in the Order History section.
    <a name="Cancel (void) the payment"></a>
@@ -286,6 +286,6 @@ Cancellation (void) / capture of the payment only works for **Credit card** paym
 
 1. To cancel (void) the payment, is needed to go to Sales > Orders and in the action column, click View for the order with Processing status.
 2. Click **Cancel payment button**.
-   **![](readme_images/opencart_Cancel_button.png)**
+   **![](opencart 4/readme_images/opencart_Cancel_button.png)**
 4. To confirm payment cancellation, click OK button in the pop-up window that appears
 5. After confirming the need to cancel the payment, the order status will change to Canceled in the Order History section.
