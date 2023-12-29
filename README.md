@@ -1,299 +1,291 @@
-# Unlimint Opencart plugin
 
-**Table of Contents**
+# Unlimit OpenCart Plugin Documentation
 
- * [Overview](#Overview)
-   * [Requirements](#Requirements)
-   * [Supported payment methods](#Supported_payment_methods)
-   * [Supported languages](#Supported_languages)
- * [Installation](#Installation)
- * [Unit tests (optional)](#Unit_tests)
- * [Configuration](#Configuration)
-   * [Basic settings](#Basic_settings)
-     * [Payment methods settings](#Payment_methods_settings)
-         * [Unlimint Credit Card](#Unlimint_Credit_Card)
-         * [Unlimint Boleto](#Unlimint_Boleto)
-         * [Unlimint Pix](#Unlimint_Pix)
-     * [Order status tab settings (mapping of the order statuses)](#Order_status_tab)
-   * [Payment notification configuration](#Payment_notification_configuration)     
- * [Supported post-payment operations](#Supported_post-payment_operations)
-   * [Cancellation (void) / Capture of the payment](#Cancellation_capture)
-     * [Capture of the payment](#Capture_of_the_payment)
-     * [Cancel (void) the payment](#Cancel_payment)
-   * [Refund the payment](#Refund_the_payment)
+## Table of Contents
+- [Overview](#overview)
+- [Requirements](#requirements)
+- [Supported Payment Methods](#supported-payment-methods)
+- [Supported Languages](#supported-languages)
+- [Installation](#installation)
+- [Configuration](#configuration)
+    - [Basic Settings](#basic-settings)
+    - [Payment Methods Settings](#payment-methods-settings)
+        - [Credit Card](#credit-card)
+        - [Boleto](#boleto)
+        - [Google Pay](#google-pay)
+        - [MB WAY](#mb-way)
+        - [Multibanco](#multibanco)
+        - [PayPal](#paypal)
+        - [Pix](#pix)
+        - [SEPA Instant](#sepa-instant)
+        - [SPEI](#spei)
+    - [Payment Notification Configuration](#payment-notification-configuration)
+    - [Customer Phone Number Identification](#customer-phone-number-identification)
+- [Supported Post-Payment Operations](#supported-post-payment-operations)
+    - [Cancellation (void) / Capture of the Payment](#cancellation-void-capture-of-the-payment)
+        - [Capture of the payment](#capture-of-the-payment)
+        - [Cancel (void) the payment](#cancel-void-the-payment)
 
-
+<a name="overview"></a>
 ## Overview
-<a name="Overview"></a>
-**Unlimint Opencart** engine plugin allows merchants to make payments and installment payments using the Opencart platform, as well as preauthorized payments plugin supports cancellation (void), capture of the payment or installment payment.
+[Unlimit OpenСart](https://github.com/cardpay/opencart-plugin) plugin enables merchants to process payments, installment payments, and preauthorized payments. Additionally, the plugin supports cancellation (void), capture of regular payments, and installment payments using the OpenCart platform.
 
+Unlimit OpenCart plugin can work in the following modes:
+- Gateway mode
+- Payment Page mode
+  <a name="requirements"></a>
 ### Requirements
-<a name="Requirements"></a>
-**Unlimint Opencart** plugin is open-source and supports:
+**Unlimit OpenCart** plugin is open-source and supports:
+- The OpenCart e-commerce platform (version 4.0.2.3)
+- PHP 8 or later
+- MariaDB (version 10.4 or higher)
+  <a name="supported-payment-methods"></a>
+### Supported Payment Methods
+Supported payment methods and their capabilities are displayed in the table below:
 
- * The Opencart engine (version 3.0.3.8)
- * PHP 7.4, PHP 8.* and all other requirements regarding official [Opencart recommendations](https://docs.opencart.com/requirements/)
-
-### Supported payment methods
-<a name="Supported_payment_methods"></a>
-**Unlimint Opencart** plugin supports the following payment methods:
-
- * Unlimint Credit Card
- * Unlimint Boleto
- * Unlimint Pix
-
-### Supported languages
-<a name="Supported_languages"></a>
-**Unlimint Opencart** plugin supports the following languages:
-
- * English
- * Spanish
- * Portuguese
-
-![](readme_images/opencart_languages.png)
-
+|**Payment method**|**Payment**|**Installment**|**Void/Cancel**|
+| :- | :- | :- | :- |
+|Credit card |Yes|Yes|Yes|
+|Boleto|Yes|No|No|
+|Google Pay|Yes|No|No|
+|MB WAY|Yes|No|No|
+|Multibanco|Yes|No|No|
+|PayPal|Yes|No|No|
+|Pix|Yes|No|No|
+|SEPA Instant|Yes|No|No|
+|SPEI|Yes|No|No|
+<a name="supported-languages"></a>
+### Supported Languages
+Supported languages:
+- English (EN)
+- Portuguese (PT)
+- Spanish (ES)
+  <a name="installation"></a>
 ## Installation
-<a name="Installation"></a>
-Installation process explains how to install the **Opencart plugin**:
-
-1. Download the latest version of Opencart plugin from Unlimint's GitHub [repository](https://github.com/cardpay/opencart-plugin).
-
+Installation process explains how to install the OpenCart plugin:
+1. Download the latest version of OpenCart plugin from Unlimit's GitHub [repository](https://github.com/cardpay/opencart-plugin).
 2. Go to the required root directory.
-
 3. Upload the plugin folder to the root directory. As a result, the required plugin directory should be presented.
-
-![](readme_images/opencart_extension_installer.png)
-
-**Unlimint Opencart** plugin was successfully installed and enabled.
-
-## Unit tests (optional)
-<a name="Unit_tests"></a>
-For execution of unit tests for Opencart plugin, run the command in the console:
-
- `phpunit ./tests`
-   
-This command executes all tests from **tests/unit** catalogue.
-
+4. Open Extension Installer > Installer tab and installation of OpenCart plugin can be done by clicking on the Upload button.
+   **![](readme_images/opencart_install.png)**
+   **Unlimit OpenCart** plugin was successfully installed and enabled.
+   <a name="configuration"></a>
 ## Configuration
-<a name="Configuration"></a>
-Configuration process explains how to set up and configure the Opencart plugin to accept payments in supported payment methods.
-
-### Basic settings
-<a name="Basic_settings"></a>
+This process explains how to set up and configure the **OpenCart plugin** to accept payments via supported payment methods.
+<a name="basic-settings"></a>
+### Basic Settings
 Begin with the following basic settings:
-
-1. Log in to Admin panel of the **Unlimint Opencart** plugin (using admin credentials).
-
+1. Log in to Admin panel of the **OpenCart plugin** (using admin credentials).
 2. Navigate to **Extensions** > **Extensions** > **Payments** (payment methods settings).
+   **![](readme_images/opencart_basic_settings.png)**
+3. To enable payment methods in the **OpenCart** plugin:
+    1. Credit card
+    2. Boleto
+    3. Google Pay
+    4. MB WAY
+    5. Multibanco
+    6. PayPal
+    7. Pix
+    8. SEPA Instant
+    9. SPEI
 
-![](readme_images/opencart_extension_payments.png)
+First, access the methods you want to enable via Unlimit support (it's a part of merchant onboarding process - see [here](https://www.unlimit.com/integration/)).
+<a name="**Payment methods settings**"></a>
+### Payment methods settings
+<a name="Credit_Card"></a>
+#### Credit Card
+To enable payments via Credit Card complete the following steps:
+1. Open the payment method settings by clicking on **Action** > **Edit**.
+   **![](readme_images/opencart_credit_card.png)**
+2. Configure settings of the Credit card payment method:
+- Set **Enabled** to **Yes** (by default it's disabled).
+- **API access mode:**
+    - Set to **Payment page** for cases when the payment page by Unlimit in iFrame is used for customer data collecting.
+    - Set to **Gateway** for cases when embedded payment form in plugin is used for customer data collecting.
+- Set **Terminal code**, **Terminal password**, **Callback secret** values - it should be merchant credentials in Unlimit APIv3 for this payment method (how to obtain credentials see [here](https://www.unlimit.com/integration/)).
+- **Test environment:**
+    - Set to **Yes** for Sandbox environment (for test purposes).
+    - Set to **No** for Production environment.
+- **Capture payment:**
+    - Set to **Yes** - for completing payment automatically (one-phase payment).
+    - Set to **No** - for two-phases of payment: the amount will not be captured but only blocked.
+- **Installment enabled:** - this setting enables installment payments:
+    - Set to **Yes** - installment payments are enabled.
+    - Set to **No** - installment payments aren't enabled.
+- **Installment type:** - installment type used in plugin:
+    - Set to **Issuer financed** - for using Issuer financed installments - for more details about it, see [API documentation](https://integration.unlimit.com/doc-guides/yjri881uncqhc-overview#issuer-financed-if).
+    - Set to **Merchant financed** - for using Merchant financed installments - for more details about it, see [API documentation](https://integration.unlimit.com/doc-guides/yjri881uncqhc-overview#merchant-financed-mf_hold).
+- **Minimum installment amount:** - minimum amount of 1 installment.
+- **Allowed installments range:** - allowed installments range:
+    - 1-12 for Merchant financed.
+    - 3, 6, 9, 12, 18 for Issuer financed.
+- **Payment title** - fill in the name of the payment method, which will be presented for the customer in checkout.
+- **Ask CPF** - set to **Yes** if you require **CPF (Brazilian Tax Id)** of your customers during checkout.
+- **Dynamic descriptor** - in this setting is described dynamic\_descriptor parameter in payment request - for more details about it, see [API documentation](https://integration.unlimit.com/api-reference/b5e0a98548e2b-payment-request-payment-data).
+- **Log to File** - the setting determines whether plugin communication logs can be written to your web server log.
+  <a name="Boleto"></a>
+#### Boleto
+To enable payments via Boleto complete the following steps:
+1. Open the payment method settings by clicking on **Action** > **Edit**.
+   **![](readme_images/opencart_Boleto.png)**
+2. Configure settings of the Boleto  payment method:
+- Set **Enabled** to **Yes** (by default it's disabled).
+- Set **Terminal code**, **Terminal password**, and **Callback secret** values - For this payment method, it should be merchant credentials in Unlimit API v3 (how to obtain credentials - see [here](https://www.unlimit.com/integration/)).
+- **Test environment**:
+    - Set to **Yes** for Sandbox environment (for test purposes).
+    - Set to **No** for Production environment.
+- **Payment title** - Fill in the name of the payment method, will be presented for the customer in checkout.
+- **Log to file** - the setting determines whether plugin communication logs can be written to your web server log.
+  <a name="Google Pay"></a>
+#### Google Pay
+To enable payments via Google Pay complete the following steps:
+1. Open the payment method settings by clicking on **Action** > **Edit**.
+   **![](readme_images/opencart_Google_Pay.png)**
+3. Configure settings of the Google Pay  payment method:
+- Set **Enabled** to **Yes** (by default it's disabled).
+- Set **Terminal code**, **Terminal password**, and **Callback secret** values - For this payment method, it should be merchant credentials in Unlimit API v3 (how to obtain credentials - see [here](https://www.unlimit.com/integration/)).
+- **Test environment**:
+    - Set to **Yes** for Sandbox environment (for test purposes).
+    - Set to **No** for Production environment.
+- **Payment title** - Fill in the name of the payment method, will be presented for the customer in checkout.
+- **Log to file** - the setting determines whether plugin communication logs can be written to your web server log.
+- **Google merchant ID** - Merchant ID, provided by Google.
 
-3. Select the required payment method.
+<a name="MB WAY"></a>
+#### MB WAY
+To enable payments via MB WAY complete the following steps:
+1. Open the payment method settings by clicking on **Action** > **Edit**.
+   **![](readme_images/opencart_MB_Way.png)**
+2. Configure settings of the MB WAY  payment method:
+- Set **Enabled** to **Yes** (by default it's disabled).
+- **API access mode:**
+    - Set to **Payment page** for cases when payment page by Unlimit in iFrame is used for customer data collecting.
+    - Set to **Gateway** for cases when embedded payment form in plugin is used for customer data collecting.
+- Set **Terminal code**, **Terminal password**, and **Callback secret** values - For this payment method, it should be merchant credentials in Unlimit APIv3 (how to obtain credentials - see [here](https://www.unlimit.com/integration/))
+- **Test environment:**
+    - Set to **Yes** for Sandbox environment (for test purposes).
+    - Set to **No** for Production environment.
+- **Payment title** - Fill in the name of the payment method, which will be presented for the customer in checkout.
+- **Log to file** - the setting determines whether plugin communication logs can be written to your web server log.  
+  <a name="Multibanco"></a>
+#### Multibanco
+To enable payments via Multibanco complete the following steps:
+1. Open the payment method settings by clicking on **Action** > **Edit**.
+   **![](readme_images/opencart_Multibanco.png)**
+1. Configure settings of the Multibanco payment method:
+- Set **Enabled** to **Yes** (by default it's disabled).
+- **API access mode:**
+    - Set to **Payment page** for cases when payment page by Unlimit in iFrame is used for customer data collecting.
+    - Set to **Gateway** for cases when embedded payment form in plugin is used for customer data collecting.
+- Set **Terminal code**, **Terminal password**, and **Callback secret** values - For this payment method, it should be merchant credentials in Unlimit APIv3 (how to obtain credentials - see [here](https://www.unlimit.com/integration/))
+- **Test environment:**
+    - Set to **Yes** for Sandbox environment (for test purposes).
+    - Set to **No** for Production environment.
+- **Payment title** - Fill in the name of the payment method, which will be presented for the customer in checkout.
+- **Log to file** - the setting determines whether plugin communication logs can be written to your web server log.
+  <a name="PayPal"></a>
+#### PayPal
+To enable payments via PayPal complete the following steps:
+1. Open the payment method settings by clicking on **Action** > **Edit**.
+   **![](readme_images/opencart_PayPal.png)**
+2. Configure settings of the PayPal payment method:
+- Set **Enabled** to **Yes** (by default it's disabled).
+- **API access mode:**
+    - Set to **Payment page** for cases when payment page by Unlimit in iFrame is used for customer data collecting.
+    - Set to **Gateway** for cases when embedded payment form in plugin is used for customer data collecting.
+- Set **Terminal code**, **Terminal password**, and **Callback secret** values - For this payment method, it should be merchant credentials in Unlimit APIv3 (how to obtain credentials - see [here](https://www.unlimit.com/integration/))
+- **Test environment:**
+    - Set to **Yes** for Sandbox environment (for test purposes).
+    - Set to **No** for Production environment.
+- **Payment title** - Fill in the name of the payment method, which will be presented for the customer in checkout.
+- **Log to file** - the setting determines whether plugin communication logs can be written to your web server log.
+  <a name="Pix"></a>
+#### Pix
+To enable payments via Pix complete the following steps:
+1. Open the payment method settings by clicking on **Action** > **Edit**.
+   **![](readme_images/opencart_Pix.png)**
+2. Configure settings of the Pix payment method
+- Set **Enabled** to **Yes** (by default it's disabled).
+- Set **Terminal code**, **Terminal password**, and **Callback secret** values - For this payment method, it should be merchant credentials in Unlimit APIv3 (how to obtain credentials - see [here](https://www.unlimit.com/integration/))
+- **Test environment:**
+    - Set to **Yes** for Sandbox environment (for test purposes).
+    - Set to **No** for Production environment.
+- **Payment title** - Fill in the name of the payment method, which will be presented for the customer in checkout.
+- **Log to file** - the setting determines whether plugin communication logs can be written to your web server log.
+  <a name="SEPA Instant"></a>
+#### SEPA Instant
+To enable payments via SEPA Instant complete the following steps:
+1. Open the payment method settings by clicking on **Action** > **Edit**.
+   **![](readme_images/opencart_SEPA_Instant.png)**
+2. Configure settings of the SEPA Instant payment method:
+- Set **Enabled** to **Yes** (by default it's disabled).
+- **API access mode:**
+    - Set to **Payment page** for cases when payment page by Unlimit in iFrame is used for customer data collecting.
+    - Set to **Gateway** for cases when embedded payment form in plugin is used for customer data collecting.
+- Set **Terminal code**, **Terminal password**, and **Callback secret** values - For this payment method, it should be merchant credentials in Unlimit APIv3 (how to obtain credentials - see [here](https://www.unlimit.com/integration/))
+- **Test environment:**
+    - Set to **Yes** for Sandbox environment (for test purposes).
+    - Set to **No** for Production environment.
+- **Payment title** - Fill in the name of the payment method, which will be presented for the customer in checkout.
+- **Log to file** - the setting determines whether plugin communication logs can be written to your web server log.
+  <a name="SPEI"></a>
+#### SPEI
+To enable payments via SPEI complete the following steps:
 
-![](readme_images/opencart_payment_methods.png)
-
-#### Payment methods settings
-<a name="Payment_methods_settings"></a>
-It is necessary to enable payment methods in the Opencart plugin:
-
- * Unlimint Credit Card
- * Unlimint Boleto
- * Unlimint Pix
-
-Each supported payment method includes the **Settings** tab and the **Order status** tab.
-
-**Order status** tab displays the required _mapping of transaction and order statuses_ and allows the selection of the following order statuses:
-
- * Canceled
- * Canceled Reversal
- * Chargeback
- * Complete
- * Denied
- * Expired
- * Failed
- * Pending
- * Processed
- * Processing
- * Refunded
- * Reversed
- * Shipped
- * Voided
-
-First, access the requested methods and enable them by **Unlimint support** (a part of merchant onboarding process - see [here](https://www.unlimint.com/integration/)).
-
-##### Unlimint Credit Card
-<a name="Unlimint_Credit_Card"></a>
-To enable payments via **Unlimint Credit Card**, do the following steps:
-
- * Go to **Unlimint Credit Card** payment method and click **Edit**.
-
-![](readme_images/opencart_boleto_credit_card_settings.png)
-
- * Switch on **Enabled** for **Unlimint Credit Card** payment method. 
-
- ![](readme_images/opencart_plugin_enable.png)
-
- * Set **Terminal code**, **Terminal password**, **Callback secret** values - it should be merchant credentials in Unlimint APIv3 for this payment method (how to obtain credentials see [here](https://www.unlimint.com/integration/)).
-
- * **Test environment**:
-   * Set to **Yes** for Sandbox environment (for test purposes).
-   * Set to **No** for Production environment.
-
- * **Payment title** - fill in the name of the payment method, will be presented for the customer in checkout.
-
- * **Capture payment**:
-   * Set to **Yes** for completion payment automatically (one phase payment).
-   * Set to **No** for two phases payment: the amount will not be captured but only blocked.
-
-With **No** option selected, payments will be captured automatically in 7 days from the time of creating the preauthorized transaction.
-
-In installment case with **No** option selected installments will be declined automatically in 7 days from the time of creating the preauthorized transaction.
-
- * **Installment enabled:** - this setting enables installment payments possibility.
-   * Set to **Yes** - installment payments are enabled, number of installments are available for selection in payment form, it's possible to split payment to 2-12 installments, each installment in 30 days period.
-   * Set to **No** - installment payments are disabled.
- * **Ask CPF** - set to **Yes** if **CPF (Brazilian Tax Id)** is required for the customer in checkout.
- * **Dynamic Descriptor** - short description of the service or product, see `dynamic_descriptor` API field in [API documentation](https://integration.unlimint.com/#PaymentRequestPaymentData).
- * **Log to file** - Opencart plugin system log setting, this log file contains the plugin debug information, communication errors between plugin front-end and back-end. By default, it's set to **Yes**. If it will be set to **No** - the log file won't be created. 
-
-Click **Save** or **Cancel** in order to save or cancel the preferred settings.
-
-##### Unlimint Boleto
-<a name="Unlimint_Boleto"></a>
-To enable payments via **Unlimint Boleto** payment method, do the following steps:
-
- * Go to **Unlimint Boleto** payment method and click **Edit**.
-
- ![](readme_images/opencart_boleto_settings.png)
-
- * Switch on **Enabled** for **Unlimint Boleto** payment method.
-
- ![](readme_images/opencart_plugin_enable.png)
-
- * Set **Terminal code**, **Terminal password**, **Callback secret** values - it should be merchant credentials in Unlimint API v3 for this payment method (how to obtain credentials see [here](https://www.unlimint.com/integration/)).
-
- * **Test environment**:
-   * Set to **Yes** for Sandbox environment (for test purposes).
-   * Set to **No** for Production environment.
-
- * **Payment title** - fill in the name of the payment method, will be presented for the customer in checkout.
- 
- * **Log to file** - Opencart plugin system log setting, this log file contains the plugin debug information, communication errors between plugin front-end and back-end. By default, it's set to **Yes**. If it will be set to **No** - the log file won't be created. 
-
-Click **Save** or **Cancel** in order to save or cancel the preferred settings.
-
-##### Unlimint Pix
-<a name="Unlimint_Pix"></a>
-To enable payments via **Unlimint Pix** payment method, switch on **Enabled** for this payment method and do the following steps:
-
- * Go to **Unlimint Pix** payment method.
- 
-![](readme_images/opencart_pix_settings.png)
-
- * Set **Terminal code**, **Terminal password**, **Callback secret** values - it should be merchant credentials in Unlimint API v3 for this payment method (how to obtain credentials see [here](https://www.unlimint.com/integration/)).
- * Test environment:
-    * Set to **Yes** for Sandbox environment (for test purposes).
-    * Set to **No** for Production environment.
-
- * **Payment title** - fill in the name of the payment method, will be presented for the customer in checkout.
-
- * **Log to file** - the setting of the Opencart plugin system log, this log file contains the plugin debug information, communication errors between plugin front-end and back-end. By default, it's set to **Yes**. If it will be set to **No** - log file will not be created.
-
-Click **Save** or **Cancel** in order to save or cancel the preferred settings.
-
-The selected payment methods are successfully enabled in the checkout.
-
-#### Order status tab settings (mapping of the order statuses)
-<a name="Order_status_tab"></a>
-Mapping of the order statuses is set by default and must be changed _only_ if Merchants have custom order statuses flow (not recommended to change).
-
-**Flow of the statuses** is **unique** for each supported payment method in plugin. If Merchants change the status flow for **Unlimint Credit Card**, the status flow for the **Unlimint Boleto** and **Pix** payment methods is not changed.
-
-If it is required to see or change **Order mapping** statuses for **Unlimint Credit Card** - go to **Unlimint Credit Card** and choose **Order status** tab.
-
-![](readme_images/opencart_unlimint_credit_card_order_status.png)
-
-Refer to the **Order status** tab in order to see or change the Order mapping statuses for **Unlimint Boleto**.
-
-![](readme_images/opencart_unlimint_boleto_order_status.png)
-
-Refer to the **Order status** tab in order to see or change the Order mapping statuses for **Unlimint Pix**.
-
-![](readme_images/opencart_unlimint_pix_order_status.png)
-
+1. Open the payment method settings by clicking on **Action** > **Edit**.
+   **![](readme_images/opencart_SPEI.png)**
+2. Configure settings of the SPEI payment method:
+- Set **Enabled** to **Yes** (by default it's disabled).
+- **API access mode:**
+    - Set to **Payment page** for cases when payment page by Unlimit in iFrame is used for customer data collecting.
+    - Set to **Gateway** for cases when embedded payment form in plugin is used for customer data collecting.
+- Set **Terminal code**, **Terminal password**, and **Callback secret** values - For this payment method, it should be merchant credentials in Unlimit APIv3 (how to obtain credentials - see [here](https://www.unlimit.com/integration/))
+- **Test environment:**
+    - Set to **Yes** for Sandbox environment (for test purposes).
+    - Set to **No** for Production environment.
+- **Payment title** - Fill in the name of the payment method, which will be presented for the customer in checkout.
+- **Log to file** - the setting determines whether plugin communication logs can be written to your web server log.
+  <a name="Payment notification configuration"></a>
 ### Payment notification configuration
-<a name="Payment_notification_configuration"></a>
 This process explains how to set up Order statuses for payment notifications:
 
-1. Log in to the Unlimint’s [Merchant account](https://sandbox.cardpay.com/ma) with Merchant credentials (obtaining of merchant credentials is a part of merchant onboarding process - see details [here](https://www.unlimint.com/integration/)).
-2. Go to **Wallet Settings** and click on the Wallet's ID (Settings / Wallet settings / choose specific wallet id / Callbacks / JSON callback URL).
-3. Fill in the JSON Callback URL field with:
-
-`https://<merchant_domain>/index.php?route=extension/payment/ul_general/callback` where _<merchant_domain>_ is website domain.
+1. Log in to the Unlimit’s [Merchant account](https://sandbox.cardpay.com/ma) with Merchant credentials (obtaining of merchant credentials is a part of merchant onboarding process - see details [here](https://www.unlimit.com/integration/)).
+1. Go to **Wallet Settings** and click on the Wallet's ID (Settings / Wallet settings / choose specific wallet id / Callbacks / JSON callback URL).
+1. Fill in the JSON Callback URL field with:
+   `https://<merchant\_domain>/index.phproute=extension/unlimit/payment/ul\_general/callback`where *<merchant\_domain>* is website domain.
 
 The notification statuses have been successfully configured.
-
+<a name="Customer phone number identification"></a>
+### Customer phone number identification
+To make payment by all methods, the client needs to define a phone number.
+- To enter the phone number, there is a field in the payment form where the client can enter the phone number.
+- The client needs to enter the country code and phone number.
+- After filling in all the payment fields it is necessary to press the "Pay" button. If the entered number does not correspond to the format required for the payment method, an error will be generated.
+  <a name="Supported post-payment operations"></a>
 ## Supported post-payment operations
-<a name="Supported_post-payment_operations"></a>
-Unlimint Opencart plugin supports the following post-payment operations:
+Unlimit OpenCart plugin supports the following post-payment operations:
+- Void (Cancellation)
+- Capture of the Payment
+  <a name="Cancellation void/ Capture of the payment"></a>
+### Cancellation (void)/ Capture of the payment
+Cancellation (void) / capture of the payment only works for **Credit card** payment method.
 
- * Cancellation (void) / Capture of the preauthorized payment;
- * Refund payment.
-
-### Cancellation (void) / Capture of the payment
-<a name="Cancellation_capture"></a>
-Cancellation (void) / capture of the payment only works for **Unlimint Credit Card** payment method.
-
-It's available only for orders which were processed by a certain payment method configuration (**Capture payment** is set to **No**). 
-
-If **Capture payment** is set to **Yes** - an order will be completed without any user actions in Opencart Admin Panel.
-
+- It's available only for orders which were processed by a certain payment method configuration (**Capture payment** is set to **No**).
+- If **Capture payment** is set to **Yes**, an order will be completed without any user action in Opencard Admin Panel.
+  <a name="Capture of the payment"></a>
 #### Capture of the payment
-<a name="Capture_of_the_payment"></a>
-For Capture of the preauthorized payment, navigate to **Sales** > **Orders** section and click **View** button of the required payment.
 
-Then click **Capture payment** button, which is available only for preauthorized payments.
-
-![](readme_images/opencart_capture_cancel.png)
-
-Click **OK** in the pop-up window, which requires the approval and says **Are you sure you want to capture the payment?**
-
-After the successful processing of the operation the order status will change to **Complete** and will be displayed in the **Order history** section.
-
-![](readme_images/opencart_capture_status_change.png)
-
+1. To capture a preauthorized payment, is needed to go to Sales > Orders and in the action column, click View for the order that is needed.
+2. Edit the quantity of items if needed in the **Item** block (change the quantity of the items and **complete order partially**).
+3. Then, click the **Capture** **payment** button.Capture payment button is available only if the payment status is Authorized and the order status is Processing.
+   **![](readme_images/opencart_Capture_button.png)**
+4. To confirm the order capture, click OK button in the pop-up window that appears.
+5. After confirming the need to capture the order, the order status will change to Complete in the Order History section.
+   <a name="Cancel (void) the payment"></a>
 #### Cancel (void) the payment
-<a name="Cancel_payment"></a>
-For cancel (void) the payment, navigate to **Unlimint Credit Card** and choose the **Order Status** tab for *Order status when payment is voided*, then click **Cancel payment**.
 
-![](readme_images/opencart_capture_cancel.png)
-
-Click **OK** in the pop-up window, which requires the approval and says **Are you sure you want to cancel the payment?**
-
-After the successful processing of the operation the order status will change to **Canceled** and will be displayed in the **Order history** section.
-
-![](readme_images/opencart_cancel_status_change.png)
-
-### Refund the payment
-<a name="Refund_the_payment"></a>
-**Refund** operation is supported only for payments (not installment payments) with payment method **Unlimint Credit Card**.
-
-For creating a **Refund payment** navigate to **Orders** and choose any **Order** in status **Complete**.
-
-![](readme_images/opencart_order_status_complete.png)
-
-Click the **View** button and proceed to the detailed order information. Then click the **Edit** button and click the **Refund payment** button.
-
-![](readme_images/opencart_refund_payment_button.png)
-
-Fill in the amount of the refund and click the **Refund** button after the refund amount calculation is complete.
-
-![](readme_images/opencart_refund_amount.png)
-
-Confirm the operation in the presented refund confirmation pop-up window.
-
-![](readme_images/opencart_refund_confirm.png)
-
-After successful full refund, the status of the order is changed to **Refunded**.
-
-![](readme_images/opencart_order_refunded.png)
+1. To cancel (void) the payment, is needed to go to Sales > Orders and in the action column, click View for the order with Processing status.
+2. Click **Cancel payment button**.
+   **![](readme_images/opencart_Cancel_button.png)**
+4. To confirm payment cancellation, click OK button in the pop-up window that appears
+5. After confirming the need to cancel the payment, the order status will change to Canceled in the Order History section.

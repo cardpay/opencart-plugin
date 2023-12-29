@@ -1,0 +1,157 @@
+{{ header }}{{ column_left }}
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="float-end">
+                <a id="btn_save" class="btn btn-primary">{{ button_save }} <em class="fa fa-save"></em></a>
+                <a onclick="location = '{{ cancel }}';" class="btn btn-default">{{ button_cancel }} <em
+                            class="fa fa-reply"></em></a>
+            </div>
+            <h1>{{ heading_title }}</h1>
+            <ul class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="container-fluid">
+        {% if error_warning %}
+            <div class="alert alert-danger"><em class="fa fa-exclamation-circle"></em> {{ error_warning }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+        {% endif %}
+        <div class="card">
+            <div class="card-header"><i class="fa-solid fa-pencil"></i> Edit Unlimit</div>
+            <div class="card-body">
+                <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form_ul"
+                      class="form-horizontal">
+                    <ul class="nav nav-tabs" id="tabs">
+                        <li class="nav-item"><a class="nav-link active" href="#tab_settings"
+                                                data-toggle="tab">{{ tab_setting }}</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="form-table">
+                        <div class="tab-pane active" role="tabpanel" aria-labelledby="tab_settings-tab"
+                             id="tab_settings">
+                            <div class="row mb-3 required">
+                                <label class="col-sm-3 col-form-label"
+                                       for="payment_ul_gpay_status">{{ entry_payment_status }}</label>
+                                <div class="col-sm-5">
+                                    <select name="payment_ul_gpay_status" id="payment_ul_gpay_status"
+                                            class="form-select">
+                                        {% if payment_ul_gpay_status %}
+                                            <option value="1" selected="selected">{{ text_yes }}</option>
+                                            <option value="0">{{ text_no }}</option>
+                                        {% else %}
+                                            <option value="1">{{ text_yes }}</option>
+                                            <option value="0" selected="selected">{{ text_no }}</option>
+                                        {% endif %}
+                                    </select>
+                                    <span class="note">{{ entry_access_token_tooltip }}</span>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 required" id="div_payment_ul_gpay_terminal_code">
+                                <label class="col-sm-3 col-form-label" for="payment_ul_gpay_terminal_code"
+                                       data-toggle="tooltip">{{ entry_terminal_code }}</label>
+                                <div class="col-sm-5">
+                                    <input type="text" class="form-control" id="payment_ul_gpay_terminal_code"
+                                           name="payment_ul_gpay_terminal_code"
+                                           value="{{ payment_ul_gpay_terminal_code }}"/>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 required" id="div_ul_gpay_terminal_password">
+                                <label class="col-sm-3 col-form-label"
+                                       for="input-settlement-immediate">{{ entry_terminal_password }}</label>
+                                <div class="col-sm-5">
+                                    <input type="password" class="form-control" id="payment_ul_gpay_terminal_password"
+                                           name="payment_ul_gpay_terminal_password"
+                                           value="{{ payment_ul_gpay_terminal_password }}"/>
+                                    <span class="note">{{ help_callback_secret_credentials }}</span>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 required" id="div_payment_ul_gpay_callback_secret">
+                                <label class="col-sm-3 col-form-label"
+                                       for="payment_ul_gpay_callback_secret">{{ entry_callback_secret }}</label>
+                                <div class="col-sm-5">
+                                    <input type="password" class="form-control" id="payment_ul_gpay_callback_secret"
+                                           name="payment_ul_gpay_callback_secret"
+                                           value="{{ payment_ul_gpay_callback_secret }}"/>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 required" id="div_payment_ul_gpay_test_environment">
+                                <label class="col-sm-3 col-form-label"
+                                       for="input-settlement-immediate">{{ entry_test_environment }}</label>
+                                <div class="col-sm-5">
+                                    <select name="payment_ul_gpay_test_environment"
+                                            id="payment_ul_gpay_test_environment"
+                                            class="form-select">
+                                        {% if payment_ul_gpay_test_environment %}
+                                            <option value="1" selected="selected">{{ text_no }}</option>
+                                            <option value="0">{{ text_yes }}</option>
+                                        {% else %}
+                                            <option value="1">{{ text_no }}</option>
+                                            <option value="0" selected="selected">{{ text_yes }}</option>
+                                        {% endif %}
+                                    </select>
+                                    <span class="note">{{ help_test_environment }}</span>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 required" id="div_payment_ul_gpay_payment_title">
+                                <label class="col-sm-3 col-form-label"
+                                       for="payment_ul_gpay_payment_title">{{ entry_payment_title }}</label>
+                                <div class="col-sm-5">
+                                    <input type="text" class="form-control" id="payment_ul_gpay_payment_title"
+                                           name="payment_ul_gpay_payment_title"
+                                           value="{{ payment_ul_gpay_payment_title }}"/>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 required">
+                                <label class="col-sm-3 col-form-label"
+                                       for="payment_ul_gpay_log_to_file">{{ entry_log_to_file }}</label>
+                                <div class="col-sm-5">
+                                    <select name="payment_ul_gpay_log_to_file" id="payment_ul_gpay_log_to_file"
+                                            class="form-select">
+                                        {% if payment_ul_gpay_log_to_file %}
+                                            <option value="1" selected="selected">{{ text_yes }}</option>
+                                            <option value="0">{{ text_no }}</option>
+                                        {% else %}
+                                            <option value="1">{{ text_yes }}</option>
+                                            <option value="0" selected="selected">{{ text_no }}</option>
+                                        {% endif %}
+                                    </select>
+                                    <span class="note">{{ help_log_to_file }}</span>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 required" id="div_ul_gpay_merchant_id">
+                                <label class="col-sm-3 col-form-label"
+                                       for="input-settlement-immediate">{{ entry_merchant_id }}</label>
+                                <div class="col-sm-5">
+                                    <input type="password" class="form-control" id="payment_ul_gpay_merchant_id"
+                                           name="payment_ul_gpay_merchant_id"
+                                           value="{{ payment_ul_gpay_merchant_id }}"/>
+                                    <span class="note">{{ help_merchant_id }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+  var api_mode_changed_warning = "{{ api_mode_changed_warning }}"
+</script>
+<script type="text/javascript" src="../extension/unlimit/admin/view/javascript/ul/common_settings_ul.js"></script>
+<script defer type="text/javascript"
+        src="../extension/unlimit/admin/view/javascript/ul/gpay/ul_settings_gpay.js"></script>
+<script type="text/javascript" src="../extension/unlimit/admin/view/javascript/ul/spinner.min.js"></script>
+<link rel="stylesheet" href="../extension/unlimit/admin/view/stylesheet/ul_admin.css">

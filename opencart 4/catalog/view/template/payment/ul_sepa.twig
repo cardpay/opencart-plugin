@@ -1,0 +1,59 @@
+<div id="ul_sepa"></div>
+<link href="extension/unlimit/catalog/view/stylesheet/ul_checkout.css" rel="stylesheet" type="text/css">
+<input type="hidden" id="paymentType" value="sepa"/>
+<input type="hidden" id="contryType" value="{{ countryType }}"/>
+
+
+<div class="clearfix"></div>
+<div id="spinner">
+    <div id="ul-box-form">
+        <div class="ul-box-inputs ul-line">
+            <div class="ul-box-inputs ul-col-50">
+                <div class="ul-title-checkout">{{ payment_title }}</div>
+            </div>
+        </div>
+        <div id="unlimit-form">
+            <form method="post" id="ul-form" name="ul-form"
+                  action="{{ actionForm }}">
+                <div class="ul-box-inputs ul-col-100">
+                    <label for="ulSepaNumber">{{ ul_phone_number }} <em>*</em></label>
+                    <input type="text" id="ulSepaNumber" name="unlimit_custom[ulSepaNumber]"
+                           data-checkout="ulSepaNumber"
+                           autocomplete="off"/>
+                    <span id="sepa-number"></span>
+                    <span class="ul-error" id="ulSepaError"
+                          data-main="#ulSepaNumber"> {{ error_empty_phone }} </span>
+                    <span class="ul-error" id="ulSepaError-second"
+                          data-main="#ulSepaNumber"> {{ error_invalid_phone }} </span>
+                </div>
+                <div class="ul-box-inputs ul-line">
+                    <div class="ul-box-inputs ul-col-50">
+                        <img alt="{{ action }}" src="extension/unlimit/admin/view/image/payment/{{ action }}ul_sepa.png"
+                             width="45"
+                             height="35"/>
+                    </div>
+                </div>
+
+                <div class="ul-box-inputs ul-line">
+                    <div class="ul-box-inputs ul-col-50">
+                        {% if is_sepa_payment_page_required == 1 %}
+                            <input type="submit" id="ulBtnSubmit" data-prefix="Sepa" data-method="payment_page"
+                                   name="btnSubmit" value={{ payment_button }}>
+                        {% else %}
+                            <input type="submit" id="ulBtnSubmit" data-prefix="Sepa" data-method="gateway"
+                                   name="btnSubmit" value={{ payment_button }}>
+                        {% endif %}
+                    </div>
+
+                    <div class="ul-box-inputs ul-col-25">
+                        <div id="ul-box-loading">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/mask.js"></script>' }}
+    {{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/sepa/ul_sepa_checkout.js"></script>' }}
+{{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/ul_checkout.js"></script>' }}

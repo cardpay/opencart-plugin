@@ -1,0 +1,13 @@
+.note {
+    font-size: 12px;
+}
+
+#api_mode_changed_warning {
+    max-width: 500px;
+}
+
+.ul_error {
+    border: 1px solid #f00; /* Красная рамка вокруг элемента */
+    background-color: #fee; /* Красный фон */
+    padding: 10px; /* Поля внутри элемента */
+}

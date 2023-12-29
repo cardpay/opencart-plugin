@@ -1,0 +1,74 @@
+<div id="ul_pix"></div>
+<link rel="stylesheet" href="extension/unlimit/catalog/view/stylesheet/ul_checkout.css">
+<input type="hidden" id="paymentType" value="pix"/>
+<input type="hidden" id="contryType" value="{{ countryType }}"/>
+
+<div class="clearfix"></div>
+<div id="spinner">
+    <div id="ul-box-form">
+        <div class="ul-box-inputs ul-line">
+            <div class="ul-box-inputs ul-col-50">
+                <div class="ul-title-checkout">{{ payment_title }}</div>
+            </div>
+        </div>
+        <form method="post" onsubmit="return validateUlCpf('docnumber', 'cpf-error')" id="ul-form" name="ul-form"
+              action="{{ actionForm }}">
+            <div id="unlimit-form">
+                <div class="ul-box-inputs ul-col-100">
+                    <label class='ul-label-form title-cpf' for="ulPixNumber">{{ ul_phone_number }} <em>*</em></label>
+                    <input type="text" id="ulPixNumber" name="unlimit_custom[ulPixNumber]" data-checkout="ulPixNumber"
+                           autocomplete="off"/>
+                    <span id="pix-number"></span>
+                    <span class="ul-error" id="ulPixError"
+                          data-main="#ulPixNumber"> {{ error_empty_phone }} </span>
+                    <span class="ul-error" id="ulPixError-second"
+                          data-main="#ulPixNumber"> {{ error_invalid_phone }} </span>
+                </div>
+                <div class="ul-box-inputs ul-col-100">
+                    <label for='docnumber' id='ul-cpf-label'
+                           class='ul-label-form title-cpf'>CPF
+                        <em>*</em></label>
+                    <input type='text'
+                           onkeyup="formatUlBoletoCpf(this.id);" onfocusout="validateUlInput();"
+                           class='ul-form-control'
+                           id='docnumber' data-checkout="docNumber" name='unlimit_custom[docnumber]'
+                           autocomplete='off' maxlength='14'
+                           placeholder='XXX.XXX.XXX-XX'>
+                    <span class='ul-error' data-main='#ul-cpf-pix'
+                          id='cpf-error'>{{ error_invalid_cpf }}</span>
+                    <span class='ul-error' data-main='#ul-cpf-pix'
+                          id='cpf-error-1'>{{ error_empty_cpf }}</span>
+                </div>
+
+                <div class="ul-box-inputs ul-line">
+                    <div class="ul-box-inputs ul-col-50">
+                        <img alt="{{ action }}" src="extension/unlimit/admin/view/image/payment/{{ action }}/ul_pix.png"
+                             width="99"
+                             height="35"/>
+                    </div>
+                </div>
+                <div class="ul-box-inputs ul-line">
+                    <div class="ul-box-inputs ul-col-50">
+                        <input type="submit" id="ulBtnSubmit" data-prefix="Pix" data-method="gateway"
+                               name="btnSubmit" value={{ payment_button }}>
+                    </div>
+                    <div class="ul-box-inputs ul-col-25">
+                        <div id="ul-box-loading">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        {{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/mask.js"></script>' }}
+        {{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/pix/ul_pix_checkout.js"></script>' }}
+        {{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/ul_checkout.js"></script>' }}
+        {{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/ticket/ul_lib_ticket.js"></script>' }}
+        {{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/ticket/ul_ticket_checkout.js"></script>' }}
+    </div>
+</div>
+<script type='text/javascript'>
+  function validateUlInput () {
+    setTimeout(validateUlPixCpf(), 1)
+  }
+</script>

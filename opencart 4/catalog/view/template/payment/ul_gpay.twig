@@ -1,0 +1,80 @@
+<div id="ul_gpay"></div>
+<link href="extension/unlimit/catalog/view/stylesheet/ul_checkout.css" rel="stylesheet" type="text/css">
+<input type="hidden" id="paymentType" value="gpay"/>
+<input type="hidden" id="contryType" value="{{ countryType }}"/>
+
+
+<div class="clearfix"></div>
+<div id="spinner">
+    <div id="ul-box-form">
+        <div class="ul-box-inputs ul-line">
+            <div class="ul-box-inputs ul-col-50">
+                <div class="ul-title-checkout">{{ payment_title }}</div>
+            </div>
+        </div>
+        <div id="unlimit-form">
+            <form method="post" id="ul-form" name="ul-form"
+                  action="{{ actionForm }}">
+
+                <div class="ul-box-inputs ul-col-100">
+                    <label for="ulGpayNumber">{{ ul_phone_number }} <em>*</em></label>
+                    <input type="text" id="ulGpayNumber" name="unlimit_custom[ulGpayNumber]"
+                           data-checkout="ulGpayNumber"
+                           autocomplete="off"/>
+                    <span id="gpay-number"></span>
+                    <span class="ul-error" id="ulGpayError"
+                          data-main="#ulGpayNumber"> {{ error_empty_phone }} </span>
+                    <span class="ul-error" id="ulGpayError-second"
+                          data-main="#ulGpayNumber"> {{ error_invalid_phone }} </span>
+                </div>
+                <div class="ul-row-checkout">
+                    <div class="mp-box-inputs mp-col-100" id="buttonContainer">
+                        <input id="container" name="cardpay_custom_gpay[signature]"
+                               value="{{ merchant_id }}" style="display: none"/>
+                    </div>
+                </div>
+
+                <div class="ul-box-inputs ul-line">
+                    <div class="ul-box-inputs ul-col-50">
+                        <img alt="{{ action }}" src="extension/unlimit/admin/view/image/payment/{{ action }}ul_gpay.png"
+                             width="75"
+                             height="35"/>
+                    </div>
+                </div>
+
+                <div class="ul-box-inputs ul-line" style="display: none">
+                    <div class="ul-box-inputs ul-col-50">
+                        <input type="submit" id="btnSubmit" data-prefix="Gpay" name="btnSubmit"
+                               value={{ payment_button }}>
+                    </div>
+
+                    <div class="ul-box-inputs ul-col-25">
+                        <div id="ul-box-loading">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/mask.js"></script>' }}
+{{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/ul_checkout.js"></script>' }}
+{{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/gpay/ul_gpay_checkout.js"></script>' }}
+<script>
+  jQuery(document).ready(function ($) {
+    var inputElement = document.getElementById('input-payment-code')
+    if (inputElement && inputElement.value === 'ul_gpay.ul_gpay') {
+      var scriptElement = document.createElement('script')
+
+      scriptElement.src = 'https://pay.google.com/gp/p/js/pay.js'
+      scriptElement.defer = true
+
+      document.body.appendChild(scriptElement)
+
+      scriptElement.onload = function () {
+        onGooglePayLoaded()
+      }
+    }
+  })
+
+</script>
