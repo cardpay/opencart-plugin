@@ -1,0 +1,39 @@
+<script type='text/javascript'
+        src='../extension/unlimit/admin/view/javascript/ul/card/bankcard_settings_unlimit.js'></script>
+<script type='text/javascript'
+        src='../extension/unlimit/admin/view/javascript/ul/card/ul_refund.js'></script>
+<script type='text/javascript'>
+    var BANKCARD_ALERT_TRANSLATIONS = {}
+    {% for key, value in dialogs %}
+    BANKCARD_ALERT_TRANSLATIONS['{{ key }}'] = '{{ value }}'
+    {% endfor %}
+    window.onload = function () {
+        let buttons = []
+        {% if buttons.capture %}
+        buttons.push('<button type="button" id="ul_button_capture" class="btn pull-right btn-info" ' +
+            ' style="{{ style }}margin-left: 4px; padding: 6px"  onclick="ulCapturePayment()">{{ ul_button_capture }}</button>')
+        {% endif %}
+        {% if buttons.cancel %}
+        buttons.push('<button type="button" id="ul_button_cancel" class="btn pull-right btn-info" ' +
+            ' style="{{ style }}margin-left: 4px; padding: 6px"  onclick="ulCancelPayment()">{{ ul_button_cancel }}</button>')
+        {% endif %}
+        {% if buttons.refund %}
+        buttons.push(
+            '<button type="button" data-bs-toggle="modal" data-bs-target="#modal-refund"  id="ul_button_refund" class="btn pull-right btn-info" ' +
+            ' style="{{ style }}margin-left: 4px; padding: 6px">{{ ul_button_refund }}</button>')
+        {% endif %}
+        jQuery(buttons.join(' ')).insertAfter('a.btn-light')
+        {% if buttons.refund %}
+
+        jQuery.get(
+            'index.php?route=extension/unlimit/payment/ul_card.ajax_refund_form&order_id={{ order_id }}&user_token={{ user_token }}',
+        ).done(function (unlimit_form) {
+            jQuery('#container').append(unlimit_form)
+
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.error('AJAX request failed: ' + textStatus, errorThrown)
+        })
+
+        {% endif %}
+    }
+</script>

@@ -1,0 +1,171 @@
+<style>
+    .refunded {
+        font-size: small;
+        color: #900;
+    }
+
+    table.refund-buttons {
+        width: 100%;
+    }
+
+    td.refund-buttons {
+        width: 50%;
+    }
+
+    #ul-refund-products-form td, #ul-refund-products-form th {
+        font-size: 13px;
+    }
+</style>
+
+<div id="modal-refund" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="panel-title form-label" id="ul_refund_title"><em
+                            class="fa fa-refresh"></em> {{ labels.ul_refund }}
+                </h3>
+            </div>
+            <div class="modal-body">
+                <div id="ul-refund-products">
+                    <form id="ul-refund-products-form" onsubmit="return false">
+                        <input type="hidden" id="ul-store-id" value="{{ store_id }}">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" aria-describedby="ul_refund_title">
+                                <thead>
+                                <tr>
+                                    <th>{{ labels.ul_product }}</th>
+                                    <th>{{ labels.ul_model }}</th>
+                                    <th>{{ labels.ul_price }}</th>
+                                    <th>{{ labels.ul_quantity }}</th>
+                                    <th>{{ labels.ul_amount }}</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                {% set product_row = 0 %}
+                                {% for order_product in order_products %}
+                                    <tr>
+                                        <td class="text-left">{{ order_product.name }}
+                                            {% for option in order_product.option %}
+                                                - <small>{{ option.name }}: {{ option.value }}</small><br/>
+                                            {% endfor %}
+                                        </td>
+
+                                        <td class="text-left">{{ order_product.model }}</td>
+                                        <td>{{ order_product.price_format }}</td>
+
+                                        <td class="text-left">× {{ order_product.quantity }} <br>
+                                            {% if order_product.item_refund.quantity>0 %}
+                                                <div class="refunded">
+                                                    <span class="fa fa-reply"></span> {{ order_product.item_refund.quantity }}
+                                                </div>
+                                            {% endif %}
+                                            <input type="number" class="form-control ul-product-qty ul-refund-val"
+                                                   min="0"
+                                                   max="{{ order_product.quantity }}"
+                                                   data-id="{{ order_product.order_product_id }}"
+                                                   data-price="{{ order_product.price }}"
+                                                   onchange="ulRefundChangeQty(this)"
+                                                   value="0"/>
+                                        </td>
+
+                                        <td>
+                                            {{ order_product.total_format }}
+                                            {% if total.item_refund.amount>0 %}
+                                                <div class="refunded">
+                                                    <span class="fa fa-reply"></span> {{ total.item_refund.amount_format }}
+                                                </div>
+                                            {% endif %}
+                                            <input type="number" class="form-control ul-product-total ul-refund-val"
+                                                   min="0"
+                                                   id="ul-product-{{ order_product.order_product_id }}-total"
+                                                   max="{{ order_product.total }}"
+                                                   data-id="{{ order_product.order_product_id }}"
+                                                   name="ul_product[{{ order_product.order_product_id }}][amount]"
+                                                   step="{{ amount_step }}"
+                                                   onchange="ulRefundRecalc()"
+                                                   value="0"/>
+                                        </td>
+                                    </tr>
+                                    {% set product_row = product_row + 1 %}
+                                {% endfor %}
+                                <tr>
+                                    <td colspan="5">{{ labels.ul_totals }}</td>
+                                </tr>
+                                {% set total_row = 0 %}
+                                {% for total in total_data %}
+                                    <tr>
+                                        <td class="text-right" colspan="4">{{ total.title }}</td>
+                                        <td class="text-left">{{ total.text }}
+                                            {% if total.item_refund.amount>0 %}
+                                                <div class="refunded">
+                                                    <span class="fa fa-reply"></span> {{ total.item_refund.amount_format }}
+                                                </div>
+                                            {% endif %}
+                                            <input type="number" class="form-control ul-total-total ul-refund-val"
+                                                   min="0"
+                                                   step="0.01"
+                                                   data-id="{{ total.order_total_id }}"
+                                                   name="ul_total[{{ total.order_total_id }}][amount]"
+                                                   max="{{ total.value }}"
+                                                   onchange="ulRefundRecalc()"
+                                                   value="0"/>
+                                        </td>
+                                    </tr>
+                                    {% set total_row = total_row + 1 %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <tabel><!--UL Products End-->
+                                <!--UL Refund-->
+                                <div class="form-group row">
+                                    <label for="ul-restock"
+                                           class="col-sm-3 col-form-label text-center">{{ labels.ul_restock }}</label>
+                                    <div class="col-sm-9">
+                                        <input style="margin: 30 0 30" type="checkbox" name="ul_restock" id="ul-restock" value="1" checked
+                                               onchange="ulSwitchProductRefund(this)">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="ul-available-refund"
+                                           class="col-sm-3 col-form-label text-center">{{ labels.ul_available }}</label>
+                                    <div class="col-sm-9" id="ul-available-refund"
+                                         style="text-align: center;margin: 0 auto;">
+                                        {{ available_refund }}
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="ul-refund"
+                                           class="col-sm-3 col-form-label text-center">{{ labels.ul_re_amount }}</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" name="ul_refund" id="ul-refund" class="form-control text-center">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="ul-reason"
+                                           class="col-sm-3 col-form-label text-center">{{ labels.ul_re_reason }}</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" name="ul_reason" id="ul-reason" value=""
+                                               class="form-control text-center" maxlength="200">
+                                    </div>
+                                </div>
+                                <tbody>
+                                <tr>
+                                    <td class="text-right">
+                                        <button type="button" class="btn btn-primary float-end"
+                                                onclick="ulRefundPayment()">{{ labels.ul_refund }}</button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </tabel>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

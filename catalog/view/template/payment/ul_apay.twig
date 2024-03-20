@@ -1,0 +1,87 @@
+<div id="ul_apay"></div>
+<link href="extension/unlimit/catalog/view/stylesheet/ul_checkout.css" rel="stylesheet" type="text/css">
+<input type="hidden" id="paymentType" value="apay"/>
+<input type="hidden" id="contryType" value="{{ countryType }}"/>
+
+
+<div class="clearfix"></div>
+<div id="spinner">
+    <div id="ul-box-form">
+        <div class="ul-box-inputs ul-line">
+            <div class="ul-box-inputs ul-col-50">
+                <div class="ul-title-checkout">{{ payment_title }}</div>
+            </div>
+        </div>
+        <div id="unlimit-form">
+            <form method="post" id="ul-form" name="ul-form"
+                  action="{{ actionForm }}">
+
+                <div class="ul-box-inputs ul-col-100">
+                    <label for="ulApayNumber">{{ ul_phone_number }} <em>*</em></label>
+                    <input type="text" id="ulApayNumber" name="unlimit_custom[ulApayNumber]"
+                           data-checkout="ulApayNumber"
+                           autocomplete="off"/>
+                    <span id="apay-number"></span>
+                    <span class="ul-error" id="ulApayError"
+                          data-main="#ulApayNumber"> {{ error_empty_phone }} </span>
+                    <span class="ul-error" id="ulApayError-second"
+                          data-main="#ulApayNumber"> {{ error_invalid_phone }} </span>
+                </div>
+                <div class="ul-row-checkout">
+                    <div class="mp-box-inputs mp-col-100" id="buttonContainer">
+                        <input id="container" name="cardpay_custom_apay[signature]" style="display: none"/>
+                        <div style="padding: 10px 0 20px 0;">
+                            <div id="apple-pay-button" class="apple-pay input-block-level d-none"></div>
+                            <div class="apple-pay-error d-none"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ul-box-inputs ul-line">
+                    <div class="ul-box-inputs ul-col-50">
+                        <img alt="{{ action }}" src="extension/unlimit/admin/view/image/payment/{{ action }}ul_apay.png"
+                             width="75"
+                             height="48"/>
+                    </div>
+                </div>
+
+                <div class="ul-box-inputs ul-line" style="display: none">
+                    <div class="ul-box-inputs ul-col-50">
+                        <input type="submit" id="btnSubmit" data-prefix="Apay" name="btnSubmit"
+                               value={{ payment_button }}>
+                    </div>
+
+                    <div class="ul-box-inputs ul-col-25">
+                        <div id="ul-box-loading">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/mask.js"></script>' }}
+{{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/ul_checkout.js"></script>' }}
+{{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/apay/ul_apay_checkout.js"></script>' }}
+<script>
+  const oc_unlimit_apay_params = {
+      store_name: '{{ store_name }}',
+      currency: '{{ currency }}',
+      validatemerchant_url: '{{ validatemerchant_url }}',
+      merchant_id: '{{ merchant_id }}'
+  };
+  jQuery(document).ready(function ($) {
+    var inputElement = document.getElementById('input-payment-code')
+    if (inputElement && inputElement.value === 'ul_apay.ul_apay') {
+      if (unlimit.applePay.supportedByDevice()) {
+            console.log('Is ApplePaySession available in the browser? Yes')
+            unlimit.applePay.showButton();
+        } else {
+            let msgApplePayFailed = 'This device and/or browser does not support Apple Pay.'
+            console.log(msgApplePayFailed);
+            unlimit.applePay.showError(msgApplePayFailed);
+        }
+    }
+  })
+
+</script>
