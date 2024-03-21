@@ -67,7 +67,7 @@ Supported languages:
 Installation process explains how to install the OpenCart plugin:
 1. Download the latest version of OpenCart plugin from Unlimit's GitHub [repository](https://github.com/cardpay/opencart-plugin).
 2. Select the Opencart 4 folder and create a .zip file named "unlimit.ocmod.zip"
-3. Open Extansions > Installer tab and installation of OpenCart plugin can be done by clicking on the Upload button.
+2. Open Extansions > Installer tab and installation of OpenCart plugin can be done by clicking on the Upload button.
 **![](readme_images/opencart_install.png)**
 **Unlimit OpenCart** plugin was successfully installed and enabled. After installation, no payment methods are added by default. Instructions are given below in the Basic settings section.
 <a name="configuration"></a>
@@ -334,9 +334,11 @@ The Refund  operation is supported only for following payment methods:
 - PayPal
 
 To create a Refund, navigate to Sales -> Orders and select any Order in Complete status.For the selected order, in the upper right corner click Refund payment button.
-  **![](readme_images/opencart_Refund_button.png)**
+
+**![](readme_images/opencart_Refund_button.png)**
 - Specify the required Total refund amount including shipping costs and refund amount for the product. It is possible to make a partial refund or full refund.
-  **![](readme_images/opencart_Refund_form.png)**
+**![](readme_images/opencart_Refund_form.png)**
+
 - In order to take shipping costs into account, you need to enter the shipping amount required for the refund in the appropriate field.
 - In the Refund amount field define the total amount of refund.
 - In the Reason for refund field it is necessary to define the reason for refund.
