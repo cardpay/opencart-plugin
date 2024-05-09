@@ -360,7 +360,9 @@ The Refund  operation is supported only for following payment methods:
 To create a Refund, navigate to Sales -> Orders and select any Order in Complete status.For the selected order, in the upper right corner click Refund payment button.
 
 **![](readme_images/opencart_Refund_button.png)**
+
 - Specify the required Total refund amount including shipping costs and refund amount for the product. It is possible to make a partial refund or full refund.
+  
 **![](readme_images/opencart_Refund_form.png)**
 
 - In order to take shipping costs into account, you need to enter the shipping amount required for the refund in the appropriate field.
