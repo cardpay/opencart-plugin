@@ -1,6 +1,6 @@
-<div id="ul_sepa"></div>
+<div id="ul_oxxo"></div>
 <link href="extension/unlimit/catalog/view/stylesheet/ul_checkout.css" rel="stylesheet" type="text/css">
-<input type="hidden" id="paymentType" value="sepa"/>
+<input type="hidden" id="paymentType" value="oxxo"/>
 <input type="hidden" id="contryType" value="{{ countryType }}"/>
 
 
@@ -16,31 +16,31 @@
             <form method="post" id="ul-form" name="ul-form"
                   action="{{ actionForm }}">
                 <div class="ul-box-inputs ul-col-100">
-                    <label for="ulSepaNumber">{{ ul_phone_number }} <em>*</em></label>
-                    <input type="text" id="ulSepaNumber" name="unlimit_custom[ulSepaNumber]"
-                           data-checkout="ulSepaNumber"
+                    <label for="ulOxxoNumber">{{ ul_phone_number }} <em>*</em></label>
+                    <input type="text" id="ulOxxoNumber" name="unlimit_custom[ulOxxoNumber]"
+                           data-checkout="ulOxxoNumber"
                            autocomplete="off"/>
-                    <span id="sepa-number"></span>
-                    <span class="ul-error" id="ulSepaError"
-                          data-main="#ulSepaNumber"> {{ error_empty_phone }} </span>
-                    <span class="ul-error" id="ulSepaError-second"
-                          data-main="#ulSepaNumber"> {{ error_invalid_phone }} </span>
+                    <span id="oxxo-number"></span>
+                    <span class="ul-error" id="ulOxxoError"
+                          data-main="#ulOxxoNumber"> {{ error_empty_phone }} </span>
+                    <span class="ul-error" id="ulOxxoError-second"
+                          data-main="#ulOxxoNumber"> {{ error_invalid_phone }} </span>
                 </div>
+
                 <div class="ul-box-inputs ul-line">
                     <div class="ul-box-inputs ul-col-50">
-                        <img alt="{{ action }}" src="extension/unlimit/admin/view/image/payment/{{ action }}ul_sepa.png"
-                             width="45"
-                             height="35"/>
+                        <img alt="{{ action }}" src="extension/unlimit/admin/view/image/payment/{{ action }}ul_oxxo.png"
+                             width="99"/>
                     </div>
                 </div>
 
                 <div class="ul-box-inputs ul-line">
                     <div class="ul-box-inputs ul-col-50">
-                        {% if is_sepa_payment_page_required == 1 %}
-                            <input type="submit" id="ulBtnSubmit" data-prefix="Sepa" data-method="payment_page"
+                        {% if is_oxxo_payment_page_required == 1 %}
+                            <input type="submit" id="ulBtnSubmit" data-prefix="Oxxo" data-method="payment_page"
                                    name="btnSubmit" value={{ payment_button }}>
                         {% else %}
-                            <input type="submit" id="ulBtnSubmit" data-prefix="Sepa" data-method="gateway"
+                            <input type="submit" id="ulBtnSubmit" data-prefix="Oxxo" data-method="gateway"
                                    name="btnSubmit" value={{ payment_button }}>
                         {% endif %}
                     </div>
@@ -55,8 +55,8 @@
     </div>
 </div>
 {{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/mask.js"></script>' }}
-    {{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/sepa/ul_sepa_checkout.js"></script>' }}
+    {{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/oxxo/ul_oxxo_checkout.js"></script>' }}
 {{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/ul_checkout.js"></script>' }}
-<script>
+<script type="application/javascript">
   const cartPageLink = "{{ cartPageLink }}&language={{ languageCode }}";
 </script>

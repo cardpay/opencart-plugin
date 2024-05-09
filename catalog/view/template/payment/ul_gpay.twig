@@ -61,6 +61,7 @@
 {{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/ul_checkout.js"></script>' }}
 {{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/gpay/ul_gpay_checkout.js"></script>' }}
 <script>
+  const cartPageLink = "{{ cartPageLink }}&language={{ languageCode }}";
   jQuery(document).ready(function ($) {
     var inputElement = document.getElementById('input-payment-code')
     if (inputElement && inputElement.value === 'ul_gpay.ul_gpay') {

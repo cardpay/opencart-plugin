@@ -144,7 +144,7 @@ var unlimitIframeProcessor = {//NOSONAR
         ? this.redirectFunc(e.redirect)
         : this.redirectFunc(decodeURI(e.redirect))
     } catch (t) {
-      window.location.reload()
+      window.location = cartPageLink;
     }
   },
   formSubmit: function () {

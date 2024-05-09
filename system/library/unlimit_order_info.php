@@ -16,6 +16,7 @@ class UnlimitOrderInfo
             'ul_paypal' => 'paypal',
             'ul_sepa' => 'sepa',
             'ul_spei' => 'spei',
+            'ul_oxxo' => 'oxxo',
         ];
 
     public function get_prefix($payment_code): string

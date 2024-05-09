@@ -83,6 +83,7 @@
     {{ '<script defer src="./extension/unlimit/catalog/view/javascript/ul/pix/ul_pix_checkout.js"></script>' }}
 
 <script type='text/javascript'>
+  const cartPageLink = "{{ cartPageLink }}&language={{ languageCode }}";
   function validateUlInput () {
     setTimeout(validateUlBoletoCpf(), 1)
   }

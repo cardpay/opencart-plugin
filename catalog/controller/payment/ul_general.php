@@ -54,6 +54,7 @@ class ULGeneral extends \Opencart\System\Engine\Controller
         'PAYPAL' => 'PAYPAL',
         'SEPA' => 'SEPATRANSFER',
         'SPEI' => 'SPEI',
+        'OXXO' => 'OXXO',
         'TICKET' => 'BOLETO',
     ];
 
@@ -126,8 +127,8 @@ class ULGeneral extends \Opencart\System\Engine\Controller
     public function get_instance_ul($prefix = null): Unlimit
     {
         return $this->ul ?? $this->ul = (Unlimit::get_instance($prefix ?? static::UL_PREFIX, $this->config))
-                ->set_log($this->log)
-                ->set_db($this->db);
+            ->set_log($this->log)
+            ->set_db($this->db);
     }
 
     /**
@@ -419,7 +420,7 @@ class ULGeneral extends \Opencart\System\Engine\Controller
      *
      * @throws JsonException
      */
-    public function exceptionCatch($e, $prefix): void
+    public function exceptionCatch($e, $prefix, $api_access_mode = ULUtil::ACCESS_MODE_GATEWAY): void
     {
         $this->writeLog($prefix, __FUNCTION__ . ': ' . $e->getMessage());
         $this->session->data['error'] = $e->getMessage();

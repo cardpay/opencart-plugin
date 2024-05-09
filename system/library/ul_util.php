@@ -132,7 +132,7 @@ class ULUtil
             return;
         }
 
-        $this->ul->complete_order_data($order_id, $received_amount, $received_transaction_id);
+        $this->ul->complete_order_data($order_id, $received_transaction_id);
     }
 
     /**

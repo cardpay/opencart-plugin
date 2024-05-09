@@ -78,12 +78,11 @@ class Unlimit
         $this->db->query(rtrim($query, ','));
     }
 
-    public function complete_order_data($order_id, $new_amount, $new_payment_id): void
+    public function complete_order_data($order_id, $new_payment_id): void
     {
         $this->db->query(
             'UPDATE ' . DB_PREFIX . 'ul_orders
         SET
-        initial_amount=' . $new_amount . ',
         transaction_id=' . $new_payment_id . ',
         is_complete=1
         WHERE

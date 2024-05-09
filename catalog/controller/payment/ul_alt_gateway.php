@@ -36,6 +36,11 @@ class ULAltGateway extends ULGeneral
             $extension_payment_ul . '.payment',
             ['language' => $this->getLanguageCode()]
         );
+
+        $data['cartPageLink'] = $this->url->link(
+            self::CHECKOUT_CART
+        );
+		$data['languageCode'] = $this->getLanguageCode();
         $data['analytics'] = $this->setPreModuleAnalytics();
         $data['firstname'] = $orderInfo['firstname'];
         $data['lastname'] = $orderInfo['lastname'];

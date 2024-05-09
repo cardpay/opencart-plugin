@@ -70,6 +70,7 @@
       validatemerchant_url: '{{ validatemerchant_url }}',
       merchant_id: '{{ merchant_id }}'
   };
+  const cartPageLink = "{{ cartPageLink }}&language={{ languageCode }}";
   jQuery(document).ready(function ($) {
     var inputElement = document.getElementById('input-payment-code')
     if (inputElement && inputElement.value === 'ul_apay.ul_apay') {

@@ -15,8 +15,8 @@ class ULRestClient
     public static $check_loop;
 
     /**
-     * @param  string  $api_base_url
-     * @param  array  $request
+     * @param string $api_base_url
+     * @param array $request
      *
      * @return false|CurlHandle
      * @throws UnlimitException|JsonException
@@ -26,9 +26,9 @@ class ULRestClient
         self::prepare_build_request($request);
 
         // Set headers
-        $headers              = ["accept: application/json"];
-        $json_content         = true;
-        $form_content         = false;
+        $headers = ["accept: application/json"];
+        $json_content = true;
+        $form_content = false;
         $default_content_type = true;
 
         self::prepare_headers($request, $default_content_type, $headers, $json_content, $form_content);
@@ -49,9 +49,9 @@ class ULRestClient
     }
 
     /**
-     * @param  array  $request
-     * @param  array  $headers
-     * @param  string  $api_base_url
+     * @param array $request
+     * @param array $headers
+     * @param string $api_base_url
      *
      * @return bool|resource
      */
@@ -85,8 +85,8 @@ class ULRestClient
             foreach ($request["headers"] as $h => $v) {
                 if ($h === "content-type") {
                     $default_content_type = false;
-                    $json_content         = ($v === "application/json");
-                    $form_content         = ($v === "application/x-www-form-urlencoded");
+                    $json_content = ($v === "application/json");
+                    $form_content = ($v === "application/x-www-form-urlencoded");
                 }
                 $headers[] = $h . ": " . $v;
             }
@@ -100,15 +100,17 @@ class ULRestClient
      */
     protected static function prepare_build_request($request)
     {
-        if ( ! extension_loaded("curl")) {
-            throw new UnlimitException("cURL extension not found. You need to enable cURL in your php.ini or another configuration you have.");
+        if (!extension_loaded("curl")) {
+            throw new UnlimitException(
+                "cURL extension not found. You need to enable cURL in your php.ini or another configuration you have."
+            );
         }
 
-        if ( ! isset($request["method"])) {
+        if (!isset($request["method"])) {
             throw new UnlimitException("No HTTP METHOD specified");
         }
 
-        if ( ! isset($request["uri"])) {
+        if (!isset($request["uri"])) {
             throw new UnlimitException("No URI specified");
         }
     }
@@ -142,8 +144,8 @@ class ULRestClient
 
 
     /**
-     * @param  string  $api_url
-     * @param  array  $request
+     * @param string $api_url
+     * @param array $request
      *
      * @return array|null
      * @throws JsonException
@@ -153,22 +155,30 @@ class ULRestClient
     {
         $response = null;
 
-        $connect       = self::build_request($api_url, $request);
-        $api_result    = curl_exec($connect);
+        $connect = self::build_request($api_url, $request);
+        $api_result = curl_exec($connect);
         $api_http_code = curl_getinfo($connect, CURLINFO_HTTP_CODE);
 
         if ($api_result === false) {
             throw new UnlimitException(curl_error($connect));
         }
 
-        if ( ! is_null($api_http_code) && ! is_null($api_result)) {
+        if (!is_null($api_http_code) && !is_null($api_result)) {
             $response = [
-                "status"   => $api_http_code,
+                "status" => $api_http_code,
                 "response" => json_decode($api_result, true, 512, JSON_THROW_ON_ERROR),
             ];
         }
 
-        if ( ! is_null($response) && $response['status'] >= 400 && self::$check_loop === 0) {
+        if (!is_null($response) && $response['status'] >= 400 && self::$check_loop === 0) {
+            if ($request['data']['payment_method'] == 'BANKCARD') {
+                $request['data']['card_account']['card']['pan'] = substr(
+                        $request['data']['card_account']['card']['pan'],
+                        0,
+                        6
+                    ) . '...' . substr($request['data']['card_account']['card']['pan'], -4);
+                $request['data']['card_account']['card']['security_code'] = '...';
+            }
             self::process_error_response($api_url, $request, $response);
         }
 
@@ -187,19 +197,15 @@ class ULRestClient
             }
 
             if (isset($response['response']['cause'])) {
-
                 $description = $response['response']['cause']['description'];
-                $code        = $response['response']['cause']['code'];
+                $code = $response['response']['cause']['code'];
                 if (isset($code, $description)) {
                     $message .= " - " . $code . ': ' . $description;
                 } elseif (is_array($response['response']['cause'])) {
-
                     foreach ($response['response']['cause'] as $cause) {
                         $message .= " - " . $cause['code'] . ': ' . $cause['description'];
                     }
-
                 }
-
             }
         }
 
@@ -217,24 +223,24 @@ class ULRestClient
     {
         try {
             self::$check_loop = 1;
-            $message          = self::prepare_response_message($response);
-            $payloads         = null;
-            $endpoint         = null;
+            $message = self::prepare_response_message($response);
+            $payloads = null;
+            $endpoint = null;
 
-            if ( ! is_null($request)) {
-                if (isset($request["data"]) && ! is_null($request["data"])) {
+            if (!is_null($request)) {
+                if (isset($request["data"]) && !is_null($request["data"])) {
                     $payloads = json_encode($request["data"], JSON_THROW_ON_ERROR);
                 }
 
-                if (isset($request["uri"]) && ! is_null($request["uri"])) {
+                if (isset($request["uri"]) && !is_null($request["uri"])) {
                     $endpoint = $request["uri"];
                 }
             }
 
             self::send_error_log([
-                "api_url"  => $api_url,
+                "api_url" => $api_url,
                 "endpoint" => $endpoint,
-                "message"  => $message,
+                "message" => $message,
                 "payloads" => $payloads
             ]);
         } catch (Exception $e) {
@@ -243,7 +249,7 @@ class ULRestClient
     }
 
     /**
-     * @param  array|null  $params
+     * @param array|null $params
      *
      * @return string
      */
@@ -262,7 +268,7 @@ class ULRestClient
     }
 
     /**
-     * @param  string  $api_url
+     * @param string $api_url
      * @param$request
      *
      * @return array|null
@@ -276,8 +282,8 @@ class ULRestClient
     }
 
     /**
-     * @param  string  $api_url
-     * @param  array|null  $request
+     * @param string $api_url
+     * @param array|null $request
      *
      * @return array|null
      * @throws JsonException
@@ -291,8 +297,8 @@ class ULRestClient
     }
 
     /**
-     * @param  string  $api_url
-     * @param  array|null  $request
+     * @param string $api_url
+     * @param array|null $request
      *
      * @return array|null
      * @throws JsonException
@@ -302,7 +308,7 @@ class ULRestClient
     {
         $request["method"] = "POST";
 
-        if ( ! isset($request['headers'])) {
+        if (!isset($request['headers'])) {
             $request['headers'] = [];
         }
 
@@ -310,8 +316,8 @@ class ULRestClient
     }
 
     /**
-     * @param  string  $api_url
-     * @param  array|null  $request
+     * @param string $api_url
+     * @param array|null $request
      *
      * @return array|null
      * @throws JsonException
@@ -325,8 +331,8 @@ class ULRestClient
     }
 
     /**
-     * @param  string  $api_url
-     * @param  array|null  $request
+     * @param string $api_url
+     * @param array|null $request
      *
      * @return array|null
      * @throws JsonException
@@ -340,7 +346,7 @@ class ULRestClient
     }
 
     /**
-     * @param  array|string  $errors
+     * @param array|string $errors
      *
      */
     public static function send_error_log(array|string $errors): void

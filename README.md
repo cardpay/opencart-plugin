@@ -15,6 +15,7 @@
     - [Google Pay](#google-pay)
     - [MB WAY](#mb-way)
     - [Multibanco](#multibanco)
+    - [OXXO](#oxxo)
     - [PayPal](#paypal)
     - [Pix](#pix)
     - [SEPA Instant](#sepa-instant)
@@ -52,6 +53,7 @@ Supported payment methods and their capabilities are displayed in the table belo
 | Google Pay     | Global   | Yes     | No          | No          | Yes           |
 | MB WAY         | Portugal | Yes     | No          | No          | Yes           |
 | Multibanco     | Portugal | Yes     | No          | No          | No            |
+| OXXO           | Mexico   | Yes     | No          | No          | No            |
 | PayPal         | Global   | Yes     | No          | No          | Yes           |
 | Pix            | Brazil   | Yes     | No          | No          | No            |
 | SEPA Instant   | Europe   | Yes     | No          | No          | No            |
@@ -86,6 +88,7 @@ Begin with the following basic settings:
    4. Google Pay
    5. MB WAY
    6. Multibanco
+   7. OXXO
    7. PayPal
    8. Pix
    9. SEPA Instant
@@ -125,9 +128,9 @@ To enable payments via Credit Card complete the following steps:
 - **Ask CPF** - set to **Yes** if you require **CPF (Brazilian Tax Id)** of your customers during checkout.
 - **Dynamic descriptor** - in this setting is described dynamic\_descriptor parameter in payment request - for more details about it, see [API documentation](https://integration.unlimit.com/api-reference/b5e0a98548e2b-payment-request-payment-data).
 - **Log to File** - the setting determines whether plugin communication logs can be written to your web server log.
-<a name="Boleto"></a>
 - **Sort order** - this setting value is the position of the payment method for the customer in checkout.
 
+<a name="apple_pay"></a>
 #### Apple Pay
 To enable payments via **Apple Pay** complete the following steps:
 1. Open the payment method settings by clicking on **Action** > **Edit**.
@@ -146,6 +149,7 @@ To enable payments via **Apple Pay** complete the following steps:
 - **Merchant identity certificate** - Transport Layer Security (TLS) certificate associated with your merchant ID, used to authenticate your sessions with the Apple Pay servers [here](https://integration.unlimit.com/doc-guides/lznqjw351z86e-card-methods#applepay)).
 - **Sort order** - this setting value is the position of the payment method for the customer in checkout.
 
+<a name="Boleto"></a>
 #### Boleto
 To enable payments via **Boleto** complete the following steps:
 1. Open the payment method settings by clicking on **Action** > **Edit**.
@@ -158,9 +162,10 @@ To enable payments via **Boleto** complete the following steps:
   - Set to **No** for Production environment.
 - **Payment title** - Fill in the name of the payment method, will be presented for the customer in checkout.
 - **Log to file** - the setting determines whether plugin communication logs can be written to your web server log. 
- <a name="Google Pay"></a>
 - **Sort order** - this setting value is the position of the payment method for the customer in checkout.
 
+
+<a name="Google Pay"></a>
 #### Google Pay
 To enable payments via **Google Pay** complete the following steps:
 1. Open the payment method settings by clicking on **Action** > **Edit**.
@@ -176,7 +181,7 @@ To enable payments via **Google Pay** complete the following steps:
 - **Google merchant ID** - Merchant ID, provided by Google.
 - **Sort order** - this setting value is the position of the payment method for the customer in checkout.
 
- <a name="MB WAY"></a>
+<a name="MB WAY"></a>
 #### MB WAY
 To enable payments via **MB WAY** complete the following steps:
 1. Open the payment method settings by clicking on **Action** > **Edit**.
@@ -193,6 +198,7 @@ To enable payments via **MB WAY** complete the following steps:
 - **Payment title** - Fill in the name of the payment method, which will be presented for the customer in checkout.
 - **Log to file** - the setting determines whether plugin communication logs can be written to your web server log.
 - **Sort order** - this setting value is the position of the payment method for the customer in checkout.  
+
 <a name="Multibanco"></a>
 #### Multibanco
 To enable payments via **Multibanco** complete the following steps:
@@ -211,6 +217,24 @@ To enable payments via **Multibanco** complete the following steps:
 - **Log to file** - the setting determines whether plugin communication logs can be written to your web server log.
 - **Sort order** - this setting value is the position of the payment method for the customer in checkout.
 
+<a name="OXXO"></a>
+#### OXXO
+To enable payments via **OXXO** complete the following steps:
+1. Open the payment method settings by clicking on **Action** > **Edit**.
+**![](readme_images/opencart_OXXO.png)**
+2. Configure settings of the OXXO  payment method:
+- Set **Enabled** to **Yes** (by default it's disabled).
+- **API access mode:**
+  - Set to **Payment page** for cases when payment page by Unlimit in iFrame is used for customer data collecting.
+  - Set to **Gateway** for cases when embedded payment form in plugin is used for customer data collecting.
+- Set **Terminal code**, **Terminal password**, and **Callback secret** values - For this payment method, it should be merchant credentials in Unlimit API v3 (how to obtain credentials - see [here](https://www.unlimit.com/integration/)).
+- **Test environment**:
+  - Set to **Yes** for Sandbox environment (for test purposes).
+  - Set to **No** for Production environment.
+- **Payment title** - Fill in the name of the payment method, will be presented for the customer in checkout.
+- **Log to file** - the setting determines whether plugin communication logs can be written to your web server log. 
+- **Sort order** - this setting value is the position of the payment method for the customer in checkout.
+
 <a name="PayPal"></a>
 #### PayPal
 To enable payments via **PayPal** complete the following steps:
@@ -227,9 +251,9 @@ To enable payments via **PayPal** complete the following steps:
   - Set to **No** for Production environment.
 - **Payment title** - Fill in the name of the payment method, which will be presented for the customer in checkout.
 - **Log to file** - the setting determines whether plugin communication logs can be written to your web server log.
-<a name="Pix"></a>
 - **Sort order** - this setting value is the position of the payment method for the customer in checkout.
 
+<a name="Pix"></a>
 #### Pix
 To enable payments via **Pix** complete the following steps:
 1. Open the payment method settings by clicking on **Action** > **Edit**.
@@ -242,9 +266,9 @@ To enable payments via **Pix** complete the following steps:
   - Set to **No** for Production environment.
 - **Payment title** - Fill in the name of the payment method, which will be presented for the customer in checkout.
 - **Log to file** - the setting determines whether plugin communication logs can be written to your web server log.
-<a name="SEPA Instant"></a>
 - **Sort order** - this setting value is the position of the payment method for the customer in checkout.
 
+<a name="SEPA Instant"></a>
 #### SEPA Instant
 To enable payments via **SEPA Instant** complete the following steps:
 1. Open the payment method settings by clicking on **Action** > **Edit**.
@@ -278,7 +302,7 @@ To enable payments via **SPEI** complete the following steps:
   - Set to **No** for Production environment.
 - **Payment title** - Fill in the name of the payment method, which will be presented for the customer in checkout.
 - **Log to file** - the setting determines whether plugin communication logs can be written to your web server log.
-<a name="Payment notification configuration"></a>
+<a name="SPEI"></a>
 - **Sort order** - this setting value is the position of the payment method for the customer in checkout.
 
 ### Payment notification configuration
@@ -336,9 +360,7 @@ The Refund  operation is supported only for following payment methods:
 To create a Refund, navigate to Sales -> Orders and select any Order in Complete status.For the selected order, in the upper right corner click Refund payment button.
 
 **![](readme_images/opencart_Refund_button.png)**
-
-- Specify the required Total refund amount including shipping costs and refund amount for the product. It is possible to make a partial refund or full refund. 
-
+- Specify the required Total refund amount including shipping costs and refund amount for the product. It is possible to make a partial refund or full refund.
 **![](readme_images/opencart_Refund_form.png)**
 
 - In order to take shipping costs into account, you need to enter the shipping amount required for the refund in the appropriate field.

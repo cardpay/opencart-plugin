@@ -66,6 +66,11 @@ class ULCard extends ULGeneral
         $data['amount'] = $transaction_amount;
         $data['actionForm'] = $this->url->link(self::UL_CARD_LANGUAGE_KEY . '.payment');
 
+        $data['cartPageLink'] = $this->url->link(
+            self::CHECKOUT_CART
+        );
+		$data['languageCode'] = $this->getLanguageCode();
+
         if ($this->config->get('payment_ul_card_country')) {
             $data['action'] = $this->config->get('payment_ul_card_country');
         }
